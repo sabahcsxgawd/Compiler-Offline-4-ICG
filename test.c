@@ -4,7 +4,7 @@ int main() {
     int d, e, f, kk[5];
     d = 7*20/5;
     a = 101; 
-    go[2] = 44; 
+    go[1] = 44; 
     {
         go[3] = 444;
         b = 292;
@@ -17,7 +17,7 @@ int main() {
         gg = !0;
         println(gg);
         println(d); 
-
+        println(a);
         gg = 0 && 0;
         println(gg);
         gg = 0 && 1;
@@ -36,4 +36,5 @@ int main() {
     println(e);
     go[1] = 367;
     c = 45;
+    println(c);
 }

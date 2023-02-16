@@ -48,7 +48,7 @@ L4:
 	POP AX
 	PUSH SI
 	PUSH AX
-	MOV AX, 2
+	MOV AX, 1
 	PUSH AX
 	POP AX
 	LEA SI, go
@@ -172,56 +172,62 @@ L20:
 	CALL new_line
 	POP AX
 L21:
-	MOV AX, 0
 	PUSH AX
-	MOV AX, 0
-	PUSH AX
-	POP BX
+	MOV AX, a
+	CALL print_output
+	CALL new_line
 	POP AX
-	CMP AX, 0
-	JE L22
-	CMP BX, 0
-	JE L22
-	MOV AX, 1
-	JMP L23
 L22:
 	MOV AX, 0
-L23:
 	PUSH AX
+	MOV AX, 0
+	PUSH AX
+	POP BX
 	POP AX
-	MOV [BP-18], AX
+	CMP AX, 0
+	JE L23
+	CMP BX, 0
+	JE L23
+	MOV AX, 1
+	JMP L24
+L23:
+	MOV AX, 0
 L24:
 	PUSH AX
+	POP AX
+	MOV [BP-18], AX
+L25:
+	PUSH AX
 	MOV AX, [BP-18]
 	CALL print_output
 	CALL new_line
 	POP AX
-L25:
-	MOV AX, 0
-	PUSH AX
-	MOV AX, 1
-	PUSH AX
-	POP BX
-	POP AX
-	CMP AX, 0
-	JE L26
-	CMP BX, 0
-	JE L26
-	MOV AX, 1
-	JMP L27
 L26:
 	MOV AX, 0
-L27:
 	PUSH AX
+	MOV AX, 1
+	PUSH AX
+	POP BX
 	POP AX
-	MOV [BP-18], AX
+	CMP AX, 0
+	JE L27
+	CMP BX, 0
+	JE L27
+	MOV AX, 1
+	JMP L28
+L27:
+	MOV AX, 0
 L28:
 	PUSH AX
+	POP AX
+	MOV [BP-18], AX
+L29:
+	PUSH AX
 	MOV AX, [BP-18]
 	CALL print_output
 	CALL new_line
 	POP AX
-L29:
+L30:
 	MOV AX, 1
 	PUSH AX
 	MOV AX, 0
@@ -229,24 +235,24 @@ L29:
 	POP BX
 	POP AX
 	CMP AX, 0
-	JE L30
+	JE L31
 	CMP BX, 0
-	JE L30
+	JE L31
 	MOV AX, 1
-	JMP L31
-L30:
-	MOV AX, 0
+	JMP L32
 L31:
-	PUSH AX
-	POP AX
-	MOV [BP-18], AX
+	MOV AX, 0
 L32:
 	PUSH AX
+	POP AX
+	MOV [BP-18], AX
+L33:
+	PUSH AX
 	MOV AX, [BP-18]
 	CALL print_output
 	CALL new_line
 	POP AX
-L33:
+L34:
 	MOV AX, 1
 	PUSH AX
 	MOV AX, 1
@@ -254,24 +260,24 @@ L33:
 	POP BX
 	POP AX
 	CMP AX, 0
-	JE L34
+	JE L35
 	CMP BX, 0
-	JE L34
+	JE L35
 	MOV AX, 1
-	JMP L35
-L34:
-	MOV AX, 0
+	JMP L36
 L35:
+	MOV AX, 0
+L36:
 	PUSH AX
 	POP AX
 	MOV [BP-18], AX
-L36:
+L37:
 	PUSH AX
 	MOV AX, [BP-18]
 	CALL print_output
 	CALL new_line
 	POP AX
-L37:
+L38:
 	MOV AX, 420
 	PUSH AX
 	MOV AX, 55
@@ -284,13 +290,13 @@ L37:
 	PUSH AX
 	POP AX
 	MOV [BP-6], AX
-L38:
+L39:
 	PUSH AX
 	MOV AX, [BP-6]
 	CALL print_output
 	CALL new_line
 	POP AX
-L39:
+L40:
 	MOV AX, 20
 	PUSH AX
 	MOV AX, 300
@@ -298,22 +304,22 @@ L39:
 	POP BX
 	POP AX
 	CMP AX, BX
-	JL L40
+	JL L41
 	MOV AX, 0
-	JMP L41
-L40:
-	MOV AX, 1
+	JMP L42
 L41:
-	PUSH AX
-	POP AX
-	MOV [BP-4], AX
+	MOV AX, 1
 L42:
 	PUSH AX
+	POP AX
+	MOV [BP-4], AX
+L43:
+	PUSH AX
 	MOV AX, [BP-4]
 	CALL print_output
 	CALL new_line
 	POP AX
-L43:
+L44:
 	MOV AX, 20
 	PUSH AX
 	MOV AX, 300
@@ -321,22 +327,22 @@ L43:
 	POP BX
 	POP AX
 	CMP AX, BX
-	JGE L44
+	JGE L45
 	MOV AX, 0
-	JMP L45
-L44:
-	MOV AX, 1
+	JMP L46
 L45:
+	MOV AX, 1
+L46:
 	PUSH AX
 	POP AX
 	MOV [BP-4], AX
-L46:
+L47:
 	PUSH AX
 	MOV AX, [BP-4]
 	CALL print_output
 	CALL new_line
 	POP AX
-L47:
+L48:
 	MOV AX, 367
 	PUSH AX
 	POP AX
@@ -351,11 +357,17 @@ L47:
 	POP AX
 	MOV [SI], AX
 	POP SI
-L48:
+L49:
 	MOV AX, 45
 	PUSH AX
 	POP AX
 	MOV c, AX
+L50:
+	PUSH AX
+	MOV AX, c
+	CALL print_output
+	CALL new_line
+	POP AX
 	ADD SP, 26
 	MOV SP, BP
 	POP BP

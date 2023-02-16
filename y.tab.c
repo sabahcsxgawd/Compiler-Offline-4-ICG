@@ -3752,7 +3752,13 @@ void statement(SymbolInfo* statement_si) {
 void println(SymbolInfo* id) {
 	codeasm << "\tPUSH AX\n";
 	// TODO fix the next line
-	codeasm << "\tMOV AX, [BP" << id->baseOffset << "]\n";
+	/* codeasm << "\tMOV AX, [BP" << id->baseOffset << "]\n"; */
+	if(id->baseOffset == 0) {
+		codeasm << "\tMOV AX, " << id->getName() << '\n';
+	}
+	else {
+		codeasm << "\tMOV AX, " << "[BP" << id->baseOffset << "]\n";
+	}
 	codeasm << "\tCALL print_output\n";
 	codeasm << "\tCALL new_line\n";
 	codeasm << "\tPOP AX\n";
@@ -3798,7 +3804,6 @@ void variable(SymbolInfo* variable_si, bool side) {
 				codeasm << "\tADD SI, AX\n";				
 				codeasm << "\tPOP AX\n";
 				codeasm << "\tMOV [SI], AX\n";
-				/* codeasm << "\tMOV DX, AX\n"; */
 				codeasm << "\tPOP SI\n";
 			}
 			else {
@@ -3807,27 +3812,37 @@ void variable(SymbolInfo* variable_si, bool side) {
 				codeasm << "\tSUB SI, AX\n";				
 				codeasm << "\tPOP AX\n";
 				codeasm << "\tMOV [BP+SI], AX\n";
-				/* codeasm << "\tMOV DX, AX\n"; */
 				codeasm << "\tPOP SI\n";				
 			}
 		}
 	}
-	//TODO
 	else {
 		if(temp.size() == 1) {
 			if(temp[0]->baseOffset == 0) {
-				
+				codeasm << "\tMOV AX, " << temp[0]->getName() << '\n';
 			}
 			else {
-						
+				codeasm << "\tMOV AX, " << "[BP" << temp[0]->baseOffset << "]\n";
 			}
 		}
 		else {
+			codeasm << "\tPUSH SI\n";
+			expression(temp[2]);
+			codeasm << "\tPOP AX\n"; // value of expression is now in AX
 			if(temp[0]->baseOffset == 0) {
-				
+				codeasm << "\tLEA SI, " << temp[0]->getName() << '\n';
+				codeasm << "\tADD SI, AX\n";
+				codeasm << "\tADD SI, AX\n";				
+				codeasm << "\tMOV AX, [SI]\n";
+				codeasm << "\tPOP SI\n";
 			}
 			else {
-						
+				codeasm << "\tMOV SI, " << temp[0]->baseOffset << '\n';
+				codeasm << "\tSUB SI, AX\n";
+				codeasm << "\tSUB SI, AX\n";				
+				codeasm << "\tPOP AX\n";
+				codeasm << "\tMOV AX, [BP+SI]\n";
+				codeasm << "\tPOP SI\n";				
 			}
 		}
 	}

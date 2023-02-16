@@ -86,7 +86,7 @@ statement : expression_statement
 statements : statements statement
 Line# 7: Token <ID> Lexeme go found
 Line# 7: Token <LSQUARE> Lexeme [ found
-Line# 7: Token <CONST_INT> Lexeme 2 found
+Line# 7: Token <CONST_INT> Lexeme 1 found
 factor	: CONST_INT 
 unary_expression : factor
 term :	unary_expression
@@ -282,6 +282,13 @@ Line# 19: Token <LPAREN> Lexeme ( found
 Line# 19: Token <ID> Lexeme d found
 Line# 19: Token <RPAREN> Lexeme ) found
 Line# 19: Token <SEMICOLON> Lexeme ; found
+statement : PRNTLN LPAREN ID RPAREN SEMICOLON
+statements : statements statement
+Line# 20: Token <PRINTLN> Lexeme println found
+Line# 20: Token <LPAREN> Lexeme ( found
+Line# 20: Token <ID> Lexeme a found
+Line# 20: Token <RPAREN> Lexeme ) found
+Line# 20: Token <SEMICOLON> Lexeme ; found
 statement : PRNTLN LPAREN ID RPAREN SEMICOLON
 statements : statements statement
 Line# 21: Token <ID> Lexeme gg found
@@ -540,7 +547,14 @@ expression 	: variable ASSIGNOP logic_expression
 expression_statement : expression SEMICOLON 		 
 statement : expression_statement
 statements : statements statement
-Line# 39: Token <RCURL> Lexeme } found
+Line# 39: Token <PRINTLN> Lexeme println found
+Line# 39: Token <LPAREN> Lexeme ( found
+Line# 39: Token <ID> Lexeme c found
+Line# 39: Token <RPAREN> Lexeme ) found
+Line# 39: Token <SEMICOLON> Lexeme ; found
+statement : PRNTLN LPAREN ID RPAREN SEMICOLON
+statements : statements statement
+Line# 40: Token <RCURL> Lexeme } found
 compound_statement : LCURL statements RCURL
 	ScopeTable# 1
 	2--> <d, INT> <kk, ARRAY, INT> 
@@ -556,5 +570,5 @@ func_definition : type_specifier ID LPAREN RPAREN compound_statement
 unit : func_definition
 program : program unit 
 start : program
-Total Lines: 39
+Total Lines: 40
 Total Errors: 1
