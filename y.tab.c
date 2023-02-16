@@ -3812,7 +3812,32 @@ void logic_expression(SymbolInfo* logic_expression_si) {
 void rel_expression(SymbolInfo* rel_expression_si) {
 	vector<SymbolInfo*> temp = rel_expression_si->getParseTreeChildList();
 	if(temp[0]->getType() == "simple_expression") {
-		simple_expression(temp[0]);
+		if(temp.size() == 1) {
+			simple_expression(temp[0]);
+		}
+		else {
+			simple_expression(temp[0]);
+			simple_expression(temp[2]);
+			codeasm << "\tPOP BX\n";
+			codeasm << "\tPOP AX\n";
+			string relop_si = temp[1]->getName();
+			codeasm << "\tCMP AX, BX\n";
+			string label1 = genLabel();
+			string label2 = genLabel();
+			if(relop_si == "<") relop_si = "JL ";
+			if(relop_si == "<=") relop_si = "JLE ";
+			if(relop_si == ">") relop_si = "JG ";
+			if(relop_si == ">=") relop_si = "JGE ";
+			if(relop_si == "==") relop_si = "JE ";
+			if(relop_si == "!=") relop_si = "JNE ";
+			codeasm << "\t" << relop_si << label1 << '\n';
+			codeasm << "\tMOV AX, 0\n";
+			codeasm << "\tJMP " << label2 << '\n';
+			codeasm << label1 << ":\n";
+			codeasm << "\tMOV AX, 1\n";
+			codeasm << label2 << ":\n";
+			codeasm << "\tPUSH AX\n";
+		}
 	}
 }
 
@@ -3850,10 +3875,13 @@ void term(SymbolInfo* term_si) {
 		if(temp[1]->getName() == "*") {
 			codeasm << "\tIMUL BX\n";
 		}
-		else {
+		else if(temp[1]->getName() == "/") {
 			codeasm << "\tIDIV BX\n";
 		}
-		// TODO modulus mulop
+		else if(temp[1]->getName() == "%") {
+			codeasm << "\tIDIV BX\n";
+			codeasm << "\tMOV AX, DX\n";
+		}		
 		codeasm << "\tPUSH AX\n";
 	}	
 }
