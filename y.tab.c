@@ -3770,9 +3770,8 @@ void expression(SymbolInfo* expression_si) {
 	}
 	else if(temp[0]->getType() == "variable") {
 		logic_expression(temp[2]);
-		codeasm << "\tPUSH AX\n";
-		variable(temp[0], false);
 		codeasm << "\tPOP AX\n";
+		variable(temp[0], false);
 	}
 }
 
@@ -3923,16 +3922,18 @@ void unary_expression(SymbolInfo* unary_expression_si) {
 	vector<SymbolInfo*> temp = unary_expression_si->getParseTreeChildList();
 	if(temp[0]->getType() == "factor") {
 		factor(temp[0]);
-		codeasm << "\tPOP AX\n";
 	}
 	else {
 		unary_expression(temp[1]);
 		if(temp[0]->getName() == "-") {
+			codeasm << "\tPOP AX\n";
 			codeasm << "\tNEG AX\n";
+			codeasm << "\tPUSH AX\n";
 		}
 		else if(temp[0]->getName() == "!") {
 			string label1 = genLabel();
 			string label2 = genLabel();
+			codeasm << "\tPOP AX\n";
 			codeasm << "\tCMP AX, 0\n";
 			codeasm << "\tJE " << label1 << '\n';
 			codeasm << "\tMOV AX, 0\n";
@@ -3940,9 +3941,9 @@ void unary_expression(SymbolInfo* unary_expression_si) {
 			codeasm << label1 << ":\n";
 			codeasm << "\tMOV AX, 1\n";
 			codeasm << label2 << ":\n";
+			codeasm << "\tPUSH AX\n";
 		}
 	}
-	codeasm << "\tPUSH AX\n";
 }
 
 void factor(SymbolInfo* factor_si) {
