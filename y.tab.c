@@ -831,9 +831,9 @@ static const yytype_int16 yyrline[] =
      579,   595,   595,   614,   614,   634,   679,   679,   706,   714,
      722,   732,   746,   763,   773,   790,   798,   810,   818,   826,
      834,   848,   860,   874,   886,   919,   931,   939,   948,   948,
-     973,  1013,  1063,  1073,  1109,  1119,  1142,  1152,  1176,  1186,
-    1221,  1231,  1303,  1322,  1341,  1353,  1368,  1444,  1461,  1475,
-    1489,  1509,  1531,  1544,  1558,  1570
+     973,  1013,  1064,  1074,  1110,  1120,  1143,  1153,  1177,  1187,
+    1222,  1232,  1304,  1323,  1342,  1354,  1369,  1445,  1462,  1476,
+    1490,  1510,  1532,  1545,  1559,  1571
 };
 #endif
 
@@ -2700,11 +2700,7 @@ yyreduce:
 					(yyval.symbolInfo)->setRuleStartLine((yyvsp[-3].symbolInfo)->getRuleStartLine());
 					(yyval.symbolInfo)->setRuleEndLine((yyvsp[0].symbolInfo)->getRuleEndLine());
 					(yyval.symbolInfo)->setLeafNodeStatus(false);
-					(yyval.symbolInfo)->addSymbolToList((yyvsp[-3].symbolInfo));
-					(yyval.symbolInfo)->addSymbolToList((yyvsp[-2].symbolInfo));
-					(yyval.symbolInfo)->addSymbolToList((yyvsp[-1].symbolInfo));
-					(yyval.symbolInfo)->addSymbolToList((yyvsp[0].symbolInfo));
-
+					
 					SymbolInfo *finder = symbolTable->lookUpSymbolInSymbolTable((yyvsp[-3].symbolInfo)->getName());
 					if(finder == NULL) {
 						// TODO undecl id error
@@ -2741,12 +2737,17 @@ yyreduce:
 						errorCount++;
 						errorOut << "Line# " << lineCount << ": Array subscript is not an integer\n";
 					}
+
+					(yyval.symbolInfo)->addSymbolToList((yyvsp[-3].symbolInfo));
+					(yyval.symbolInfo)->addSymbolToList((yyvsp[-2].symbolInfo));
+					(yyval.symbolInfo)->addSymbolToList((yyvsp[-1].symbolInfo));
+					(yyval.symbolInfo)->addSymbolToList((yyvsp[0].symbolInfo));
 		 }
-#line 2746 "y.tab.c"
+#line 2747 "y.tab.c"
     break;
 
   case 52:
-#line 1063 "1905118.y"
+#line 1064 "1905118.y"
                               {
                     logOut << "expression 	: logic_expression	 " << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("logic_expression", "expression");
@@ -2757,11 +2758,11 @@ yyreduce:
 
 					(yyval.symbolInfo)->setDataType((yyvsp[0].symbolInfo)->getDataType());
 		   }
-#line 2761 "y.tab.c"
+#line 2762 "y.tab.c"
     break;
 
   case 53:
-#line 1073 "1905118.y"
+#line 1074 "1905118.y"
                                                         {		
                     logOut << "expression 	: variable ASSIGNOP logic_expression 		 " << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("variable ASSIGNOP logic_expression", "expression");
@@ -2796,11 +2797,11 @@ yyreduce:
 						(yyval.symbolInfo)->setDataType((yyvsp[-2].symbolInfo)->getDataType());
 					}
 		   }
-#line 2800 "y.tab.c"
+#line 2801 "y.tab.c"
     break;
 
   case 54:
-#line 1109 "1905118.y"
+#line 1110 "1905118.y"
                                   {
                     logOut << "logic_expression : rel_expression" << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("rel_expression", "logic_expression");
@@ -2811,11 +2812,11 @@ yyreduce:
 
 					(yyval.symbolInfo)->setDataType((yyvsp[0].symbolInfo)->getDataType());
 				 }
-#line 2815 "y.tab.c"
+#line 2816 "y.tab.c"
     break;
 
   case 55:
-#line 1119 "1905118.y"
+#line 1120 "1905118.y"
                                                                          {
 					logOut << "logic_expression : rel_expression LOGICOP rel_expression" << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("rel_expression LOGICOP rel_expression", "logic_expression");
@@ -2837,11 +2838,11 @@ yyreduce:
 					}
 					
 				 }
-#line 2841 "y.tab.c"
+#line 2842 "y.tab.c"
     break;
 
   case 56:
-#line 1142 "1905118.y"
+#line 1143 "1905118.y"
                                     {
                     logOut << "rel_expression	: simple_expression" << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("simple_expression", "rel_expression");
@@ -2852,11 +2853,11 @@ yyreduce:
 
 					(yyval.symbolInfo)->setDataType((yyvsp[0].symbolInfo)->getDataType());
 				}
-#line 2856 "y.tab.c"
+#line 2857 "y.tab.c"
     break;
 
   case 57:
-#line 1152 "1905118.y"
+#line 1153 "1905118.y"
                                                                                 {
                     logOut << "rel_expression	: simple_expression RELOP simple_expression" << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("simple_expression RELOP simple_expression", "rel_expression");
@@ -2879,11 +2880,11 @@ yyreduce:
 						(yyval.symbolInfo)->setDataType("INT");
 					}
 				}
-#line 2883 "y.tab.c"
+#line 2884 "y.tab.c"
     break;
 
   case 58:
-#line 1176 "1905118.y"
+#line 1177 "1905118.y"
                          {
                     logOut << "simple_expression : term" << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("term", "simple_expression");
@@ -2894,11 +2895,11 @@ yyreduce:
 
 					(yyval.symbolInfo)->setDataType((yyvsp[0].symbolInfo)->getDataType());
 				  }
-#line 2898 "y.tab.c"
+#line 2899 "y.tab.c"
     break;
 
   case 59:
-#line 1186 "1905118.y"
+#line 1187 "1905118.y"
                                                                  {
                     logOut << "simple_expression : simple_expression ADDOP term" << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("simple_expression ADDOP term", "simple_expression");
@@ -2932,11 +2933,11 @@ yyreduce:
 						}
 					}
 				  }
-#line 2936 "y.tab.c"
+#line 2937 "y.tab.c"
     break;
 
   case 60:
-#line 1221 "1905118.y"
+#line 1222 "1905118.y"
                          {
                     logOut << "term :	unary_expression" << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("unary_expression", "term");
@@ -2947,11 +2948,11 @@ yyreduce:
 
 					(yyval.symbolInfo)->setDataType((yyvsp[0].symbolInfo)->getDataType());
 	 }
-#line 2951 "y.tab.c"
+#line 2952 "y.tab.c"
     break;
 
   case 61:
-#line 1231 "1905118.y"
+#line 1232 "1905118.y"
                                     {
                     logOut << "term :	term MULOP unary_expression" << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("term MULOP unary_expression", "term");
@@ -3022,11 +3023,11 @@ yyreduce:
 					}
 					isZeroVal = false;
 	 }
-#line 3026 "y.tab.c"
+#line 3027 "y.tab.c"
     break;
 
   case 62:
-#line 1303 "1905118.y"
+#line 1304 "1905118.y"
                                           {
                     logOut << "unary_expression : ADDOP unary_expression" << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("ADDOP unary_expression", "unary_expression");
@@ -3046,11 +3047,11 @@ yyreduce:
 						(yyval.symbolInfo)->setDataType((yyvsp[0].symbolInfo)->getDataType());
 					}
 				 }
-#line 3050 "y.tab.c"
+#line 3051 "y.tab.c"
     break;
 
   case 63:
-#line 1322 "1905118.y"
+#line 1323 "1905118.y"
                                                         {
                     logOut << "unary_expression : NOT unary_expression" << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("NOT unary_expression", "unary_expression");
@@ -3070,11 +3071,11 @@ yyreduce:
 						(yyval.symbolInfo)->setDataType("INT");
 					}
 				 }
-#line 3074 "y.tab.c"
+#line 3075 "y.tab.c"
     break;
 
   case 64:
-#line 1341 "1905118.y"
+#line 1342 "1905118.y"
                                           {
                     logOut << "unary_expression : factor" << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("factor", "unary_expression");
@@ -3085,11 +3086,11 @@ yyreduce:
 
 					(yyval.symbolInfo)->setDataType((yyvsp[0].symbolInfo)->getDataType());
 				 }
-#line 3089 "y.tab.c"
+#line 3090 "y.tab.c"
     break;
 
   case 65:
-#line 1353 "1905118.y"
+#line 1354 "1905118.y"
                    {
                     logOut << "factor	: variable " << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("variable", "factor");
@@ -3105,21 +3106,17 @@ yyreduce:
 						(yyval.symbolInfo)->setDataType((yyvsp[0].symbolInfo)->getDataType());
 					}
 		}
-#line 3109 "y.tab.c"
+#line 3110 "y.tab.c"
     break;
 
   case 66:
-#line 1368 "1905118.y"
+#line 1369 "1905118.y"
                                                  {
                     logOut << "factor	: ID LPAREN argument_list RPAREN " << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("ID LPAREN argument_list RPAREN", "factor");
 					(yyval.symbolInfo)->setRuleStartLine((yyvsp[-3].symbolInfo)->getRuleStartLine());
 					(yyval.symbolInfo)->setRuleEndLine((yyvsp[0].symbolInfo)->getRuleEndLine());
-					(yyval.symbolInfo)->setLeafNodeStatus(false);
-					(yyval.symbolInfo)->addSymbolToList((yyvsp[-3].symbolInfo));
-					(yyval.symbolInfo)->addSymbolToList((yyvsp[-2].symbolInfo));
-					(yyval.symbolInfo)->addSymbolToList((yyvsp[-1].symbolInfo));
-					(yyval.symbolInfo)->addSymbolToList((yyvsp[0].symbolInfo));
+					(yyval.symbolInfo)->setLeafNodeStatus(false);					
 
 					SymbolInfo *finder = symbolTable->lookUpSymbolInSymbolTable((yyvsp[-3].symbolInfo)->getName());
 					if(finder == NULL) {
@@ -3183,14 +3180,18 @@ yyreduce:
 									// TODO conflicting types error maybe
 								}
 							}
-						}
+						}						
 					}
+					(yyval.symbolInfo)->addSymbolToList((yyvsp[-3].symbolInfo));
+					(yyval.symbolInfo)->addSymbolToList((yyvsp[-2].symbolInfo));
+					(yyval.symbolInfo)->addSymbolToList((yyvsp[-1].symbolInfo));
+					(yyval.symbolInfo)->addSymbolToList((yyvsp[0].symbolInfo));
 		}
-#line 3190 "y.tab.c"
+#line 3191 "y.tab.c"
     break;
 
   case 67:
-#line 1444 "1905118.y"
+#line 1445 "1905118.y"
                                            {
                     logOut << "factor	: LPAREN expression RPAREN " << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("LPAREN expression RPAREN", "factor");
@@ -3208,11 +3209,11 @@ yyreduce:
 						(yyval.symbolInfo)->setDataType((yyvsp[-1].symbolInfo)->getDataType());
 					}
 		}
-#line 3212 "y.tab.c"
+#line 3213 "y.tab.c"
     break;
 
   case 68:
-#line 1461 "1905118.y"
+#line 1462 "1905118.y"
                             {
                     logOut << "factor	: CONST_INT " << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("CONST_INT", "factor");
@@ -3227,11 +3228,11 @@ yyreduce:
 						isZeroVal = true;
 					}
 		}
-#line 3231 "y.tab.c"
+#line 3232 "y.tab.c"
     break;
 
   case 69:
-#line 1475 "1905118.y"
+#line 1476 "1905118.y"
                               {
                     logOut << "factor	: CONST_FLOAT " << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("CONST_FLOAT", "factor");
@@ -3246,11 +3247,11 @@ yyreduce:
 						isZeroVal = true;
 					}
 		}
-#line 3250 "y.tab.c"
+#line 3251 "y.tab.c"
     break;
 
   case 70:
-#line 1489 "1905118.y"
+#line 1490 "1905118.y"
                                  {
                     logOut << "factor	: variable INCOP " << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("variable INCOP", "factor");
@@ -3271,11 +3272,11 @@ yyreduce:
 						(yyval.symbolInfo)->setDataType((yyvsp[-1].symbolInfo)->getDataType());
 					}
 		}
-#line 3275 "y.tab.c"
+#line 3276 "y.tab.c"
     break;
 
   case 71:
-#line 1509 "1905118.y"
+#line 1510 "1905118.y"
                                  {
                     logOut << "factor	: variable DECOP " << '\n';
                     (yyval.symbolInfo) = new SymbolInfo("variable DECOP", "factor");
@@ -3296,11 +3297,11 @@ yyreduce:
 						(yyval.symbolInfo)->setDataType((yyvsp[-1].symbolInfo)->getDataType());
 					}
 		}
-#line 3300 "y.tab.c"
+#line 3301 "y.tab.c"
     break;
 
   case 72:
-#line 1531 "1905118.y"
+#line 1532 "1905118.y"
                           {
 				logOut << "argument_list : arguments" << '\n';
 				(yyval.symbolInfo) = new SymbolInfo("arguments", "argument_list");
@@ -3314,11 +3315,11 @@ yyreduce:
 				}
 				functionParameterList.clear();	
 			  }
-#line 3318 "y.tab.c"
+#line 3319 "y.tab.c"
     break;
 
   case 73:
-#line 1544 "1905118.y"
+#line 1545 "1905118.y"
                             {
 				logOut << "argument_list : " << '\n';
 				(yyval.symbolInfo) = new SymbolInfo("", "argument_list");
@@ -3331,11 +3332,11 @@ yyreduce:
 				}
 				functionParameterList.clear();	
 			  }
-#line 3335 "y.tab.c"
+#line 3336 "y.tab.c"
     break;
 
   case 74:
-#line 1558 "1905118.y"
+#line 1559 "1905118.y"
                                              {
 				logOut << "arguments : arguments COMMA logic_expression" << '\n';
 				(yyval.symbolInfo) = new SymbolInfo("arguments COMMA logic_expression", "arguments");
@@ -3348,11 +3349,11 @@ yyreduce:
 
 				functionParameterList.push_back((yyvsp[0].symbolInfo));
 		  }
-#line 3352 "y.tab.c"
+#line 3353 "y.tab.c"
     break;
 
   case 75:
-#line 1570 "1905118.y"
+#line 1571 "1905118.y"
                                  {
 				logOut << "arguments : logic_expression" << '\n';
 				(yyval.symbolInfo) = new SymbolInfo("logic_expression", "arguments");
@@ -3363,11 +3364,11 @@ yyreduce:
 
 				functionParameterList.push_back((yyvsp[0].symbolInfo));
 		  }
-#line 3367 "y.tab.c"
+#line 3368 "y.tab.c"
     break;
 
 
-#line 3371 "y.tab.c"
+#line 3372 "y.tab.c"
 
       default: break;
     }
@@ -3599,7 +3600,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 1583 "1905118.y"
+#line 1584 "1905118.y"
 
 
 void start(SymbolInfo*);
@@ -3780,23 +3781,54 @@ void variable(SymbolInfo* variable_si, bool side) {
 	if(!side) {
 		if(temp.size() == 1) {
 			if(temp[0]->baseOffset == 0) {
-
+				codeasm << "\tMOV " << temp[0]->getName() << ", AX\n";
 			}
 			else {
 				codeasm << "\tMOV [BP" << temp[0]->baseOffset << "], AX\n";			
 			}
 		}
 		else {
-
+			codeasm << "\tPUSH SI\n";
+			codeasm << "\tPUSH AX\n"; // value of logic exp or rhs is in top of stack
+			expression(temp[2]);
+			codeasm << "\tPOP AX\n"; // value of expression is now in AX
+			if(temp[0]->baseOffset == 0) {
+				codeasm << "\tLEA SI, " << temp[0]->getName() << '\n';
+				codeasm << "\tADD SI, AX\n";
+				codeasm << "\tADD SI, AX\n";				
+				codeasm << "\tPOP AX\n";
+				codeasm << "\tMOV [SI], AX\n";
+				/* codeasm << "\tMOV DX, AX\n"; */
+				codeasm << "\tPOP SI\n";
+			}
+			else {
+				codeasm << "\tMOV SI, " << temp[0]->baseOffset << '\n';
+				codeasm << "\tSUB SI, AX\n";
+				codeasm << "\tSUB SI, AX\n";				
+				codeasm << "\tPOP AX\n";
+				codeasm << "\tMOV [BP+SI], AX\n";
+				/* codeasm << "\tMOV DX, AX\n"; */
+				codeasm << "\tPOP SI\n";				
+			}
 		}
 	}
 	//TODO
 	else {
 		if(temp.size() == 1) {
-
+			if(temp[0]->baseOffset == 0) {
+				
+			}
+			else {
+						
+			}
 		}
 		else {
-			
+			if(temp[0]->baseOffset == 0) {
+				
+			}
+			else {
+						
+			}
 		}
 	}
 }

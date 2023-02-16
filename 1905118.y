@@ -1016,11 +1016,7 @@ variable : ID {
 					$$->setRuleStartLine($1->getRuleStartLine());
 					$$->setRuleEndLine($4->getRuleEndLine());
 					$$->setLeafNodeStatus(false);
-					$$->addSymbolToList($1);
-					$$->addSymbolToList($2);
-					$$->addSymbolToList($3);
-					$$->addSymbolToList($4);
-
+					
 					SymbolInfo *finder = symbolTable->lookUpSymbolInSymbolTable($1->getName());
 					if(finder == NULL) {
 						// TODO undecl id error
@@ -1057,6 +1053,11 @@ variable : ID {
 						errorCount++;
 						errorOut << "Line# " << lineCount << ": Array subscript is not an integer\n";
 					}
+
+					$$->addSymbolToList($1);
+					$$->addSymbolToList($2);
+					$$->addSymbolToList($3);
+					$$->addSymbolToList($4);
 		 }
 	 	 ;
 	 
@@ -1370,11 +1371,7 @@ factor	: variable {
                     $$ = new SymbolInfo("ID LPAREN argument_list RPAREN", "factor");
 					$$->setRuleStartLine($1->getRuleStartLine());
 					$$->setRuleEndLine($4->getRuleEndLine());
-					$$->setLeafNodeStatus(false);
-					$$->addSymbolToList($1);
-					$$->addSymbolToList($2);
-					$$->addSymbolToList($3);
-					$$->addSymbolToList($4);
+					$$->setLeafNodeStatus(false);					
 
 					SymbolInfo *finder = symbolTable->lookUpSymbolInSymbolTable($1->getName());
 					if(finder == NULL) {
@@ -1438,8 +1435,12 @@ factor	: variable {
 									// TODO conflicting types error maybe
 								}
 							}
-						}
+						}						
 					}
+					$$->addSymbolToList($1);
+					$$->addSymbolToList($2);
+					$$->addSymbolToList($3);
+					$$->addSymbolToList($4);
 		}
 		| LPAREN expression RPAREN {
                     logOut << "factor	: LPAREN expression RPAREN " << '\n';
@@ -1760,23 +1761,54 @@ void variable(SymbolInfo* variable_si, bool side) {
 	if(!side) {
 		if(temp.size() == 1) {
 			if(temp[0]->baseOffset == 0) {
-
+				codeasm << "\tMOV " << temp[0]->getName() << ", AX\n";
 			}
 			else {
 				codeasm << "\tMOV [BP" << temp[0]->baseOffset << "], AX\n";			
 			}
 		}
 		else {
-
+			codeasm << "\tPUSH SI\n";
+			codeasm << "\tPUSH AX\n"; // value of logic exp or rhs is in top of stack
+			expression(temp[2]);
+			codeasm << "\tPOP AX\n"; // value of expression is now in AX
+			if(temp[0]->baseOffset == 0) {
+				codeasm << "\tLEA SI, " << temp[0]->getName() << '\n';
+				codeasm << "\tADD SI, AX\n";
+				codeasm << "\tADD SI, AX\n";				
+				codeasm << "\tPOP AX\n";
+				codeasm << "\tMOV [SI], AX\n";
+				/* codeasm << "\tMOV DX, AX\n"; */
+				codeasm << "\tPOP SI\n";
+			}
+			else {
+				codeasm << "\tMOV SI, " << temp[0]->baseOffset << '\n';
+				codeasm << "\tSUB SI, AX\n";
+				codeasm << "\tSUB SI, AX\n";				
+				codeasm << "\tPOP AX\n";
+				codeasm << "\tMOV [BP+SI], AX\n";
+				/* codeasm << "\tMOV DX, AX\n"; */
+				codeasm << "\tPOP SI\n";				
+			}
 		}
 	}
 	//TODO
 	else {
 		if(temp.size() == 1) {
-
+			if(temp[0]->baseOffset == 0) {
+				
+			}
+			else {
+						
+			}
 		}
 		else {
-			
+			if(temp[0]->baseOffset == 0) {
+				
+			}
+			else {
+						
+			}
 		}
 	}
 }
