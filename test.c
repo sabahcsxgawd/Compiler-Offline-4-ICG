@@ -11,7 +11,16 @@ int main() {
         println(gg);
         gg = !0;
         println(gg);
-        println(d);    
+        println(d); 
+
+        gg = 0 && 0;
+        println(gg);
+        gg = 0 && 1;
+        println(gg);
+        gg = 1 && 0;
+        println(gg);
+        gg = 1 && 1;
+        println(gg);
     }
 
     f = 420 % 55;

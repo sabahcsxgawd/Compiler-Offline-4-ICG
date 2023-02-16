@@ -3805,7 +3805,40 @@ void variable(SymbolInfo* variable_si, bool side) {
 void logic_expression(SymbolInfo* logic_expression_si) {
 	vector<SymbolInfo*> temp = logic_expression_si->getParseTreeChildList();
 	if(temp[0]->getType() == "rel_expression") {
-		rel_expression(temp[0]);
+		if(temp.size() == 1) {
+			rel_expression(temp[0]);
+		}
+		else {
+			rel_expression(temp[0]);
+			rel_expression(temp[2]);
+			codeasm << "\tPOP BX\n";
+			codeasm << "\tPOP AX\n";
+			string label1 = genLabel();
+			string label2 = genLabel();
+			if(temp[1]->getName() == "||") {
+				codeasm << "\tCMP AX, 0\n";
+				codeasm << "\tJNE " << label1 << '\n';
+				codeasm << "\tCMP BX, 0\n";
+				codeasm << "\tJNE " << label1 << '\n';
+				codeasm << "\tMOV AX, 0\n";
+				codeasm << "\tJMP " << label2 << '\n';
+				codeasm << label1 << ":\n";
+				codeasm << "\tMOV AX, 1\n";
+				codeasm << label2 << ":\n";			
+			}
+			else if(temp[1]->getName() == "&&") {
+				codeasm << "\tCMP AX, 0\n";
+				codeasm << "\tJE " << label1 << '\n';
+				codeasm << "\tCMP BX, 0\n";
+				codeasm << "\tJE " << label1 << '\n';
+				codeasm << "\tMOV AX, 1\n";
+				codeasm << "\tJMP " << label2 << '\n';
+				codeasm << label1 << ":\n";
+				codeasm << "\tMOV AX, 0\n";
+				codeasm << label2 << ":\n";	
+			}
+			codeasm << "\tPUSH AX\n";
+		}
 	}
 }
 

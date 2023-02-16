@@ -135,6 +135,126 @@ L15:
 	CALL new_line
 	POP AX
 L16:
+	MOV AX, 0
+	PUSH AX
+	POP AX
+	PUSH AX
+	MOV AX, 0
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP BX
+	POP AX
+	CMP AX, 0
+	JE L17
+	CMP BX, 0
+	JE L17
+	MOV AX, 1
+	JMP L18
+L17:
+	MOV AX, 0
+L18:
+	PUSH AX
+	PUSH AX
+	MOV [BP-8], AX
+	POP AX
+L19:
+	PUSH AX
+	MOV AX, [BP-8]
+	CALL print_output
+	CALL new_line
+	POP AX
+L20:
+	MOV AX, 0
+	PUSH AX
+	POP AX
+	PUSH AX
+	MOV AX, 1
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP BX
+	POP AX
+	CMP AX, 0
+	JE L21
+	CMP BX, 0
+	JE L21
+	MOV AX, 1
+	JMP L22
+L21:
+	MOV AX, 0
+L22:
+	PUSH AX
+	PUSH AX
+	MOV [BP-8], AX
+	POP AX
+L23:
+	PUSH AX
+	MOV AX, [BP-8]
+	CALL print_output
+	CALL new_line
+	POP AX
+L24:
+	MOV AX, 1
+	PUSH AX
+	POP AX
+	PUSH AX
+	MOV AX, 0
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP BX
+	POP AX
+	CMP AX, 0
+	JE L25
+	CMP BX, 0
+	JE L25
+	MOV AX, 1
+	JMP L26
+L25:
+	MOV AX, 0
+L26:
+	PUSH AX
+	PUSH AX
+	MOV [BP-8], AX
+	POP AX
+L27:
+	PUSH AX
+	MOV AX, [BP-8]
+	CALL print_output
+	CALL new_line
+	POP AX
+L28:
+	MOV AX, 1
+	PUSH AX
+	POP AX
+	PUSH AX
+	MOV AX, 1
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP BX
+	POP AX
+	CMP AX, 0
+	JE L29
+	CMP BX, 0
+	JE L29
+	MOV AX, 1
+	JMP L30
+L29:
+	MOV AX, 0
+L30:
+	PUSH AX
+	PUSH AX
+	MOV [BP-8], AX
+	POP AX
+L31:
+	PUSH AX
+	MOV AX, [BP-8]
+	CALL print_output
+	CALL new_line
+	POP AX
+L32:
 	MOV AX, 420
 	PUSH AX
 	POP AX
@@ -152,13 +272,13 @@ L16:
 	PUSH AX
 	MOV [BP-6], AX
 	POP AX
-L17:
+L33:
 	PUSH AX
 	MOV AX, [BP-6]
 	CALL print_output
 	CALL new_line
 	POP AX
-L18:
+L34:
 	MOV AX, 20
 	PUSH AX
 	POP AX
@@ -170,23 +290,23 @@ L18:
 	POP BX
 	POP AX
 	CMP AX, BX
-	JL L19
+	JL L35
 	MOV AX, 0
-	JMP L20
-L19:
+	JMP L36
+L35:
 	MOV AX, 1
-L20:
+L36:
 	PUSH AX
 	PUSH AX
 	MOV [BP-4], AX
 	POP AX
-L21:
+L37:
 	PUSH AX
 	MOV AX, [BP-4]
 	CALL print_output
 	CALL new_line
 	POP AX
-L22:
+L38:
 	MOV AX, 20
 	PUSH AX
 	POP AX
@@ -198,17 +318,17 @@ L22:
 	POP BX
 	POP AX
 	CMP AX, BX
-	JGE L23
+	JGE L39
 	MOV AX, 0
-	JMP L24
-L23:
+	JMP L40
+L39:
 	MOV AX, 1
-L24:
+L40:
 	PUSH AX
 	PUSH AX
 	MOV [BP-4], AX
 	POP AX
-L25:
+L41:
 	PUSH AX
 	MOV AX, [BP-4]
 	CALL print_output
