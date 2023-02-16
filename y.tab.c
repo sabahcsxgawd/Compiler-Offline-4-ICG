@@ -3853,6 +3853,7 @@ void term(SymbolInfo* term_si) {
 		else {
 			codeasm << "\tIDIV BX\n";
 		}
+		// TODO modulus mulop
 		codeasm << "\tPUSH AX\n";
 	}	
 }

@@ -102,21 +102,27 @@ start : program 	<Line: 1-20>
                      rel_expression : simple_expression 	<Line: 9-9>
                       simple_expression : simple_expression ADDOP term 	<Line: 9-9>
                        simple_expression : simple_expression ADDOP term 	<Line: 9-9>
-                        simple_expression : term 	<Line: 9-9>
+                        simple_expression : simple_expression ADDOP term 	<Line: 9-9>
+                         simple_expression : term 	<Line: 9-9>
+                          term : unary_expression 	<Line: 9-9>
+                           unary_expression : factor 	<Line: 9-9>
+                            factor : CONST_INT 	<Line: 9-9>
+                             CONST_INT : 100	<Line: 9>
+                         ADDOP : +	<Line: 9>
                          term : unary_expression 	<Line: 9-9>
                           unary_expression : factor 	<Line: 9-9>
                            factor : CONST_INT 	<Line: 9-9>
-                            CONST_INT : 100	<Line: 9>
+                            CONST_INT : 34	<Line: 9>
                         ADDOP : +	<Line: 9>
                         term : unary_expression 	<Line: 9-9>
                          unary_expression : factor 	<Line: 9-9>
                           factor : CONST_INT 	<Line: 9-9>
-                           CONST_INT : 34	<Line: 9>
-                       ADDOP : +	<Line: 9>
+                           CONST_INT : 69	<Line: 9>
+                       ADDOP : -	<Line: 9>
                        term : unary_expression 	<Line: 9-9>
                         unary_expression : factor 	<Line: 9-9>
                          factor : CONST_INT 	<Line: 9-9>
-                          CONST_INT : 69	<Line: 9>
+                          CONST_INT : 53	<Line: 9>
                    SEMICOLON : ;	<Line: 9>
                 statement : PRNTLN LPAREN ID RPAREN SEMICOLON 	<Line: 10-10>
                  PRNTLN : println	<Line: 10>

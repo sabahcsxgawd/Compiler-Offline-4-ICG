@@ -6,7 +6,7 @@ int main() {
 
     {
         int gg, ff[4];
-        gg = 100 + 34 + 69;
+        gg = 100 + 34 + 69 - 53;
         println(gg);
         gg = !33;
         println(gg);

@@ -94,6 +94,12 @@ Line# 9: Token <CONST_INT> Lexeme 69 found
 factor	: CONST_INT 
 unary_expression : factor
 term :	unary_expression
+Line# 9: Token <ADDOP> Lexeme - found
+simple_expression : simple_expression ADDOP term
+Line# 9: Token <CONST_INT> Lexeme 53 found
+factor	: CONST_INT 
+unary_expression : factor
+term :	unary_expression
 Line# 9: Token <SEMICOLON> Lexeme ; found
 simple_expression : simple_expression ADDOP term
 rel_expression	: simple_expression
