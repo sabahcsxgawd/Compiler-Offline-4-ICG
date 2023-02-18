@@ -1751,6 +1751,21 @@ void statement(SymbolInfo* statement_si) {
 			codeasm << label2 << ":\n";
 		}
 	}
+	else if(tempList[0]->getType() == "WHILE") {
+		string label1 = genLabel();
+		string label2 = genLabel();
+		codeasm << label1 << ":\n";
+		expression(tempList[2]);
+		codeasm << "\tPOP AX\n";
+		codeasm << "\tCMP AX, 0\n";
+		codeasm << "\tJE " << label2 << '\n';
+		statement(tempList[4]);
+		codeasm << "\tJMP " << label1 << '\n';
+		codeasm << label2 << ":\n";
+	}
+	else if(tempList[0]->getType() == "FOR") {
+		
+	}
 }
 
 void println(SymbolInfo* id) {
@@ -1800,13 +1815,14 @@ void variable(SymbolInfo* variable_si, bool side) {
 		}
 		else {
 			codeasm << "\tPUSH SI\n";
+			codeasm << "\tPUSH AX\n";
 			expression(temp[2]);
 			codeasm << "\tPOP BX\n"; // value of expression is now in BX
 			if(temp[0]->baseOffset == 0) {
 				codeasm << "\tLEA SI, " << temp[0]->getName() << '\n';
 				codeasm << "\tADD SI, BX\n";
 				codeasm << "\tADD SI, BX\n";				
-				/* codeasm << "\tPOP AX\n"; */
+				codeasm << "\tPOP AX\n";
 				codeasm << "\tMOV [SI], AX\n";
 				codeasm << "\tPOP SI\n";
 			}
@@ -1814,7 +1830,7 @@ void variable(SymbolInfo* variable_si, bool side) {
 				codeasm << "\tMOV SI, " << temp[0]->baseOffset << '\n';
 				codeasm << "\tSUB SI, BX\n";
 				codeasm << "\tSUB SI, BX\n";				
-				/* codeasm << "\tPOP AX\n"; */
+				codeasm << "\tPOP AX\n";
 				codeasm << "\tMOV [BP+SI], AX\n";
 				codeasm << "\tPOP SI\n";				
 			}
@@ -1834,10 +1850,14 @@ void variable(SymbolInfo* variable_si, bool side) {
 			else {
 				codeasm << "\tMOV AX, " << "[BP" << temp[0]->baseOffset << "]\n";
 				if(doIncop) {
-					codeasm << "\tINC " << "[BP" << temp[0]->baseOffset << "]\n";
+					codeasm << "\tMOV CX, " << "[BP" << temp[0]->baseOffset << "]\n";
+					codeasm << "\tINC CX\n";
+					codeasm << "\tMOV [BP" << temp[0]->baseOffset << "], CX\n";
 				}
 				if(doDecop) {
-					codeasm << "\tDEC " << "[BP" << temp[0]->baseOffset << "]\n";
+					codeasm << "\tMOV CX, " << "[BP" << temp[0]->baseOffset << "]\n";
+					codeasm << "\tDEC CX\n";
+					codeasm << "\tMOV [BP" << temp[0]->baseOffset << "], CX\n";
 				}
 			}
 		}
@@ -1851,10 +1871,14 @@ void variable(SymbolInfo* variable_si, bool side) {
 				codeasm << "\tADD SI, BX\n";				
 				codeasm << "\tMOV AX, [SI]\n";
 				if(doIncop) {
-					codeasm << "\tINC [SI]\n";
+					codeasm << "\tMOV CX, [SI]\n";
+					codeasm << "\tINC CX\n";
+					codeasm << "\tMOV [SI], CX\n";
 				}
 				if(doDecop) {
-					codeasm << "\tDEC [SI]\n";
+					codeasm << "\tMOV CX, [SI]\n";
+					codeasm << "\tDEC CX\n";
+					codeasm << "\tMOV [SI], CX\n";
 				}
 				codeasm << "\tPOP SI\n";
 			}
@@ -1864,10 +1888,14 @@ void variable(SymbolInfo* variable_si, bool side) {
 				codeasm << "\tSUB SI, BX\n";				
 				codeasm << "\tMOV AX, [BP+SI]\n";
 				if(doIncop) {
-					codeasm << "\tINC [BP+SI]\n";
+					codeasm << "\tMOV CX, [BP+SI]\n";
+					codeasm << "\tINC CX\n";
+					codeasm << "\tMOV [BP+SI], CX\n";
 				}
 				if(doDecop) {
-					codeasm << "\tDEC [BP+SI]\n";
+					codeasm << "\tMOV CX, [BP+SI]\n";
+					codeasm << "\tDEC CX\n";
+					codeasm << "\tMOV [BP+SI], CX\n";
 				}
 				codeasm << "\tPOP SI\n";				
 			}
