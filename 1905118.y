@@ -1764,7 +1764,18 @@ void statement(SymbolInfo* statement_si) {
 		codeasm << label2 << ":\n";
 	}
 	else if(tempList[0]->getType() == "FOR") {
-		
+		expression_statement(tempList[2]);
+		string label1 = genLabel();
+		string label2 = genLabel();
+		codeasm << label1 << ":\n";
+		expression_statement(tempList[3]);
+		codeasm << "\tCMP AX, 0\n";
+		codeasm << "\tJE " << label2 << '\n';
+		statement(tempList[6]);
+		expression(tempList[4]);
+		codeasm << "\tPOP AX\n";
+		codeasm << "\tJMP " << label1 << '\n';
+		codeasm << label2 << ":\n";
 	}
 }
 
