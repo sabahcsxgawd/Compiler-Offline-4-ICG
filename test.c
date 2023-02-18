@@ -2,6 +2,8 @@ int a, b, c, go[4];
 
 int main() {
     int d, e, f, kk[5];
+    d = 11;
+    println(d);
     d = 7*20/5;
     a = 101; 
     go[1] = 44; 

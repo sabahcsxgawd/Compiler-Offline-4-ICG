@@ -12,7 +12,7 @@ ofstream logOut, errorOut, parseTree, codeasm;
 
 int lineCount = 1, errorCount = 0, errorLine = 0, offsetForVar = 0, parentOffsetForVar = 0, labelCount = 0;
 
-bool isFunctionScope = false, isZeroVal = false, isError = false;
+bool isFunctionScope = false, isZeroVal = false, isError = false, doIncop = false, doDecop = false;
 
 vector<SymbolInfo*> functionParameterList, variableDeclarationList;
 
@@ -1727,6 +1727,30 @@ void statement(SymbolInfo* statement_si) {
 	else if(tempList[0]->getType() == "expression_statement") {
 		expression_statement(tempList[0]);
 	}
+	else if(tempList[0]->getType() == "IF") {
+		if(tempList.size() == 5) {
+			string label = genLabel();
+			expression(tempList[2]);
+			codeasm << "\tPOP AX\n";
+			codeasm << "\tCMP AX, 0\n";
+			codeasm << "\tJE " << label << '\n';
+			statement(tempList[4]);
+			codeasm << label << ":\n";
+		}
+		else {
+			string label1 = genLabel();
+			string label2 = genLabel();
+			expression(tempList[2]);
+			codeasm << "\tPOP AX\n";
+			codeasm << "\tCMP AX, 0\n";
+			codeasm << "\tJE " << label1 << '\n';
+			statement(tempList[4]);
+			codeasm << "\tJMP " << label2 << '\n';
+			codeasm << label1 << ":\n";
+			statement(tempList[6]);
+			codeasm << label2 << ":\n";
+		}
+	}
 }
 
 void println(SymbolInfo* id) {
@@ -1745,6 +1769,7 @@ void println(SymbolInfo* id) {
 void expression_statement(SymbolInfo* expression_statement_si) {
 	if(expression_statement_si->getParseTreeChildList()[0]->getType() == "expression") {
 		expression(expression_statement_si->getParseTreeChildList()[0]);
+		codeasm << "\tPOP AX\n";
 	}
 }
 
@@ -1752,12 +1777,14 @@ void expression(SymbolInfo* expression_si) {
 	vector<SymbolInfo*> temp = expression_si->getParseTreeChildList();
 	if(temp[0]->getType() == "logic_expression") {
 		logic_expression(temp[0]);
+		codeasm << "\tPOP AX\n";
 	}
 	else if(temp[0]->getType() == "variable") {
 		logic_expression(temp[2]);
 		codeasm << "\tPOP AX\n";
 		variable(temp[0], false);
 	}
+	codeasm << "\tPUSH AX\n";
 }
 
 void variable(SymbolInfo* variable_si, bool side) {
@@ -1773,22 +1800,21 @@ void variable(SymbolInfo* variable_si, bool side) {
 		}
 		else {
 			codeasm << "\tPUSH SI\n";
-			codeasm << "\tPUSH AX\n"; // value of logic exp or rhs is in top of stack
 			expression(temp[2]);
-			codeasm << "\tPOP AX\n"; // value of expression is now in AX
+			codeasm << "\tPOP BX\n"; // value of expression is now in BX
 			if(temp[0]->baseOffset == 0) {
 				codeasm << "\tLEA SI, " << temp[0]->getName() << '\n';
-				codeasm << "\tADD SI, AX\n";
-				codeasm << "\tADD SI, AX\n";				
-				codeasm << "\tPOP AX\n";
+				codeasm << "\tADD SI, BX\n";
+				codeasm << "\tADD SI, BX\n";				
+				/* codeasm << "\tPOP AX\n"; */
 				codeasm << "\tMOV [SI], AX\n";
 				codeasm << "\tPOP SI\n";
 			}
 			else {
 				codeasm << "\tMOV SI, " << temp[0]->baseOffset << '\n';
-				codeasm << "\tSUB SI, AX\n";
-				codeasm << "\tSUB SI, AX\n";				
-				codeasm << "\tPOP AX\n";
+				codeasm << "\tSUB SI, BX\n";
+				codeasm << "\tSUB SI, BX\n";				
+				/* codeasm << "\tPOP AX\n"; */
 				codeasm << "\tMOV [BP+SI], AX\n";
 				codeasm << "\tPOP SI\n";				
 			}
@@ -1798,28 +1824,51 @@ void variable(SymbolInfo* variable_si, bool side) {
 		if(temp.size() == 1) {
 			if(temp[0]->baseOffset == 0) {
 				codeasm << "\tMOV AX, " << temp[0]->getName() << '\n';
+				if(doIncop) {
+					codeasm << "\tINC " << temp[0]->getName() << '\n';
+				}
+				if(doDecop) {
+					codeasm << "\tDEC " << temp[0]->getName() << '\n';
+				}
 			}
 			else {
 				codeasm << "\tMOV AX, " << "[BP" << temp[0]->baseOffset << "]\n";
+				if(doIncop) {
+					codeasm << "\tINC " << "[BP" << temp[0]->baseOffset << "]\n";
+				}
+				if(doDecop) {
+					codeasm << "\tDEC " << "[BP" << temp[0]->baseOffset << "]\n";
+				}
 			}
 		}
 		else {
 			codeasm << "\tPUSH SI\n";
 			expression(temp[2]);
-			codeasm << "\tPOP AX\n"; // value of expression is now in AX
+			codeasm << "\tPOP BX\n"; // value of expression is now in BX
 			if(temp[0]->baseOffset == 0) {
 				codeasm << "\tLEA SI, " << temp[0]->getName() << '\n';
-				codeasm << "\tADD SI, AX\n";
-				codeasm << "\tADD SI, AX\n";				
+				codeasm << "\tADD SI, BX\n";
+				codeasm << "\tADD SI, BX\n";				
 				codeasm << "\tMOV AX, [SI]\n";
+				if(doIncop) {
+					codeasm << "\tINC [SI]\n";
+				}
+				if(doDecop) {
+					codeasm << "\tDEC [SI]\n";
+				}
 				codeasm << "\tPOP SI\n";
 			}
 			else {
 				codeasm << "\tMOV SI, " << temp[0]->baseOffset << '\n';
-				codeasm << "\tSUB SI, AX\n";
-				codeasm << "\tSUB SI, AX\n";				
-				codeasm << "\tPOP AX\n";
+				codeasm << "\tSUB SI, BX\n";
+				codeasm << "\tSUB SI, BX\n";				
 				codeasm << "\tMOV AX, [BP+SI]\n";
+				if(doIncop) {
+					codeasm << "\tINC [BP+SI]\n";
+				}
+				if(doDecop) {
+					codeasm << "\tDEC [BP+SI]\n";
+				}
 				codeasm << "\tPOP SI\n";				
 			}
 		}
@@ -1831,6 +1880,7 @@ void logic_expression(SymbolInfo* logic_expression_si) {
 	if(temp[0]->getType() == "rel_expression") {
 		if(temp.size() == 1) {
 			rel_expression(temp[0]);
+			codeasm << "\tPOP AX\n";
 		}
 		else {
 			rel_expression(temp[0]);
@@ -1861,9 +1911,9 @@ void logic_expression(SymbolInfo* logic_expression_si) {
 				codeasm << "\tMOV AX, 0\n";
 				codeasm << label2 << ":\n";	
 			}
-			codeasm << "\tPUSH AX\n";
 		}
 	}
+	codeasm << "\tPUSH AX\n";
 }
 
 void rel_expression(SymbolInfo* rel_expression_si) {
@@ -1871,6 +1921,7 @@ void rel_expression(SymbolInfo* rel_expression_si) {
 	if(temp[0]->getType() == "simple_expression") {
 		if(temp.size() == 1) {
 			simple_expression(temp[0]);
+			codeasm << "\tPOP AX\n";
 		}
 		else {
 			simple_expression(temp[0]);
@@ -1893,9 +1944,9 @@ void rel_expression(SymbolInfo* rel_expression_si) {
 			codeasm << label1 << ":\n";
 			codeasm << "\tMOV AX, 1\n";
 			codeasm << label2 << ":\n";
-			codeasm << "\tPUSH AX\n";
 		}
 	}
+	codeasm << "\tPUSH AX\n";
 }
 
 void simple_expression(SymbolInfo* simple_expression_si) {
@@ -1928,6 +1979,7 @@ void term(SymbolInfo* term_si) {
 		unary_expression(temp[2]);
 		codeasm << "\tPOP BX\n";
 		codeasm << "\tPOP AX\n";
+
 		codeasm << "\tCWD\n";
 		if(temp[1]->getName() == "*") {
 			codeasm << "\tIMUL BX\n";
@@ -1946,28 +1998,26 @@ void term(SymbolInfo* term_si) {
 void unary_expression(SymbolInfo* unary_expression_si) {
 	vector<SymbolInfo*> temp = unary_expression_si->getParseTreeChildList();
 	if(temp[0]->getType() == "factor") {
-		factor(temp[0]);
+		factor(temp[0]);		
 	}
 	else {
 		unary_expression(temp[1]);
+		codeasm << "\tPOP AX\n";
 		if(temp[0]->getName() == "-") {
-			codeasm << "\tPOP AX\n";
 			codeasm << "\tNEG AX\n";
-			codeasm << "\tPUSH AX\n";
 		}
 		else if(temp[0]->getName() == "!") {
 			string label1 = genLabel();
 			string label2 = genLabel();
-			codeasm << "\tPOP AX\n";
 			codeasm << "\tCMP AX, 0\n";
 			codeasm << "\tJE " << label1 << '\n';
 			codeasm << "\tMOV AX, 0\n";
 			codeasm << "\tJMP " << label2 << '\n';
 			codeasm << label1 << ":\n";
 			codeasm << "\tMOV AX, 1\n";
-			codeasm << label2 << ":\n";
-			codeasm << "\tPUSH AX\n";
+			codeasm << label2 << ":\n";			
 		}
+		codeasm << "\tPUSH AX\n";
 	}
 }
 
@@ -1975,8 +2025,27 @@ void factor(SymbolInfo* factor_si) {
 	vector<SymbolInfo*> temp = factor_si->getParseTreeChildList();
 	if(temp[0]->getType() == "CONST_INT") {
 		codeasm << "\tMOV AX, " << temp[0]->getName() << '\n';
-		codeasm << "\tPUSH AX\n";
 	}
+	else if(temp[0]->getType() == "variable") {
+		if(temp.size() == 1) {
+			variable(temp[0], true);
+		}
+		else if(temp[1]->getType() == "INCOP") {
+			doIncop = true;
+			variable(temp[0], true);
+			doIncop = false;
+		}
+		else if(temp[1]->getType() == "DECOP") {
+			doDecop = true;
+			variable(temp[0], true);
+			doDecop = false;
+		}
+	}
+	else if(temp[1]->getType() == "expression") {
+		expression(temp[1]);
+		codeasm << "\tPOP AX\n";
+	}
+	codeasm << "\tPUSH AX\n";
 }
 
 

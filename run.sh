@@ -8,5 +8,7 @@ g++ -std=c++17 -w -g lex.yy.c y.tab.c -fsanitize=address -o out
 echo 'Linked lex.yy.c and y.tab.c files, now running'
 # ./out test1_i.c parsetree1.txt error1.txt log1.txt
 # echo "-----------INPUT 1 DONE-----------"
-./out test.c parsetree.txt error.txt log.txt code.asm
+# ./out test.c parsetree.txt error.txt log.txt code.asm
+# ./out Sample\ Input/test1_i.c parsetree.txt error.txt log.txt code.asm
+./out Sample\ Input/test2_i.c parsetree.txt error.txt log.txt code.asm
 echo "-----------INPUT DONE-----------"
