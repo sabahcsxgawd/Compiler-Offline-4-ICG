@@ -227,17 +227,11 @@ void tryToInsertParamsInSymbolTable() {
 	}
 }
 
-void printAboutVarInASM(SymbolInfo *var, int varSize, bool mode) {
+void printAboutVarInASM(SymbolInfo *var, int varSize) {
 	string varName = var->getName();
-	//TODOICG
-	if(!mode) {
-		codeasm << "\t" << varName << " DW " << varSize << " DUP (0000H)\n";
-	}
-	else {
-		var->baseOffset = offsetForVar - 2;
-		offsetForVar = offsetForVar - (2 * varSize);
-		codeasm << "\tSUB SP, " << (2 * varSize) << '\n';
-	}
+	var->baseOffset = offsetForVar - 2;
+	offsetForVar = offsetForVar - (2 * varSize);
+	codeasm << "\tSUB SP, " << (2 * varSize) << '\n';
 }
 
 string genLabel() {
@@ -1607,8 +1601,8 @@ arguments : arguments COMMA logic_expression {
 void start(SymbolInfo*);
 void program(SymbolInfo*);
 void unit(SymbolInfo*);
-void var_declaration(SymbolInfo*, bool);
-void declaration_list(SymbolInfo*, bool);
+void var_declaration(SymbolInfo*);
+void declaration_list(SymbolInfo*);
 void func_definition(SymbolInfo*);
 void compound_statement(SymbolInfo*);
 void statements(SymbolInfo*);
@@ -1687,23 +1681,23 @@ void unit(SymbolInfo* unit_si) {
 	}
 }
 
-void var_declaration(SymbolInfo* var_declaration_si, bool mode) {
+void var_declaration(SymbolInfo* var_declaration_si) {
 	SymbolInfo *type_specifier_si = var_declaration_si->getParseTreeChildList()[0];
 	SymbolInfo *declaration_list_si = var_declaration_si->getParseTreeChildList()[1];
 	if(type_specifier_si->getName() == "INT") {
-		declaration_list(declaration_list_si, mode);
+		declaration_list(declaration_list_si);
 	}
 }
 
-void declaration_list(SymbolInfo* declaration_list_si, bool mode) {
+void declaration_list(SymbolInfo* declaration_list_si) {
 	vector<SymbolInfo*> tempList = declaration_list_si->getParseTreeChildList();
 	if(tempList[0]->getType() == "declaration_list") {
 		if(tempList.size() == 3) {
-			declaration_list(tempList[0], mode);
+			declaration_list(tempList[0]);
 			SymbolInfo *finder = NULL;
-			if(symbolTable->insertSymbolInSymbolTable(tempList[2], logOut) && scopeTableCounter > 1) {
+			if(symbolTable->insertSymbolInSymbolTable(tempList[2], logOut)) {
 				finder = symbolTable->lookUpSymbolInSymbolTable(tempList[2]->getName());
-				printAboutVarInASM(finder, 1, mode);
+				printAboutVarInASM(finder, 1);
 			}
 			else {
 				errorCount++;
@@ -1711,11 +1705,11 @@ void declaration_list(SymbolInfo* declaration_list_si, bool mode) {
 			}			
 		}
 		else {
-			declaration_list(tempList[0], mode);
+			declaration_list(tempList[0]);
 			SymbolInfo *finder = NULL;
-			if(symbolTable->insertSymbolInSymbolTable(tempList[2], logOut) && scopeTableCounter > 1) {
+			if(symbolTable->insertSymbolInSymbolTable(tempList[2], logOut)) {
 				finder = symbolTable->lookUpSymbolInSymbolTable(tempList[2]->getName());
-				printAboutVarInASM(finder, stoi(tempList[4]->getName()), mode);
+				printAboutVarInASM(finder, stoi(tempList[4]->getName()));
 			}
 			else {
 				errorCount++;
@@ -1726,9 +1720,9 @@ void declaration_list(SymbolInfo* declaration_list_si, bool mode) {
 	else {
 		if(tempList.size() == 1) {	
 			SymbolInfo *finder = NULL;
-			if(symbolTable->insertSymbolInSymbolTable(tempList[0], logOut) && scopeTableCounter > 1) {
+			if(symbolTable->insertSymbolInSymbolTable(tempList[0], logOut)) {
 				finder = symbolTable->lookUpSymbolInSymbolTable(tempList[0]->getName());
-				printAboutVarInASM(finder, 1, mode);
+				printAboutVarInASM(finder, 1);
 			}
 			else {
 				errorCount++;
@@ -1737,9 +1731,9 @@ void declaration_list(SymbolInfo* declaration_list_si, bool mode) {
 		}
 		else {	
 			SymbolInfo *finder = NULL;
-			if(symbolTable->insertSymbolInSymbolTable(tempList[0], logOut) && scopeTableCounter > 1) {
+			if(symbolTable->insertSymbolInSymbolTable(tempList[0], logOut)) {
 				finder = symbolTable->lookUpSymbolInSymbolTable(tempList[0]->getName());
-				printAboutVarInASM(finder, stoi(tempList[2]->getName()), mode);
+				printAboutVarInASM(finder, stoi(tempList[2]->getName()));
 			}
 			else {
 				errorCount++;
@@ -1754,28 +1748,6 @@ void func_definition(SymbolInfo* func_definition_si) {
 	globalLabel = genLabel();
 	anotherOffset = 2;
 	offsetForVar = 0;
-	/* if(tempList[1]->getName() == "main") {
-		codeasm << "MAIN PROC\n";
-		codeasm << "\tMOV AX, @DATA\n";
-		codeasm << "\tMOV DS, AX\n";
-		codeasm << "\tPUSH BP\n";
-		codeasm << "\tMOV BP, SP\n";
-		if(tempList.size() == 5) {
-			offsetForVar = 0;
-			compound_statement(tempList[4]);
-			codeasm << "\tADD SP, " << -offsetForVar << '\n';
-			codeasm << "\tPOP BP\n";
-			offsetForVar = 0;
-		}
-		else {
-			//TODOICG
-		}
-		codeasm << "\tMOV AX, 4CH\n";
-		codeasm << "\tINT 21H\n";
-		codeasm << "MAIN ENDP\n";
-		codeasm << print_output_proc;
-		codeasm << new_line_proc;
-	} */
 	codeasm << temp[1]->getName() << " PROC\n";
 	if(temp[1]->getName() == "main") {
 		codeasm << "\tMOV AX, @DATA\n";
@@ -1841,7 +1813,7 @@ void statement(SymbolInfo* statement_si) {
 	codeasm << genLabel() << ":\n";
 	vector<SymbolInfo *> tempList = statement_si->getParseTreeChildList();
 	if(tempList[0]->getType() == "var_declaration") {
-		var_declaration(tempList[0], true);
+		var_declaration(tempList[0]);
 	}
 	else if(tempList[0]->getType() == "compound_statement") {
 		compound_statement(tempList[0]);
