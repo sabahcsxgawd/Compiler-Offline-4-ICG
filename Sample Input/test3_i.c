@@ -26,7 +26,6 @@ int main(){
  
 	println(ll);
 	println(k);
-
  
 	return 0;
 }

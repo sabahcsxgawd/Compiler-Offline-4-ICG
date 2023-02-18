@@ -36,24 +36,6 @@ public:
         this->baseOffset = symbolInfo->baseOffset;
     }
 
-    void copySymbolInfo(SymbolInfo *symbolInfo) {
-        this->name = symbolInfo->name;
-        this->type = symbolInfo->type;
-        this->dataType = symbolInfo->dataType;
-        this->next = symbolInfo->next;
-        this->ruleStartLine = symbolInfo->ruleStartLine;
-        this->ruleEndLine = symbolInfo->ruleEndLine;
-        this->arraySize= symbolInfo->arraySize;
-        this->leafNodeStatus = symbolInfo->leafNodeStatus;
-        this->isAFunction = symbolInfo->isAFunction;
-        this->isAnArray = symbolInfo->isAnArray;
-        this->isFunctionDeclared = symbolInfo->isFunctionDeclared;
-        this->isFunctionDefined = symbolInfo->isFunctionDefined;
-        this->parseTreeChildList = symbolInfo->parseTreeChildList;
-        this->functionParameterList= symbolInfo->functionParameterList;
-        this->baseOffset = symbolInfo->baseOffset;
-    }
-
     SymbolInfo(string name, string type)
     {
         this->name = name;
@@ -401,6 +383,27 @@ public:
         }
     }
 
+    void printGlobalVarsInASM(ofstream &logOut)
+    {
+        for (uint64_t i = 0; i < this->num_of_buckets; ++i)
+        {
+            if (this->symbolInfos[i] == NULL)
+            {
+                continue;
+            }
+            // looping over the symbols in the index position
+            SymbolInfo *mover = this->symbolInfos[i];
+            while (mover != NULL)
+            {
+                if(!mover->getIsAFunction()) {
+                    int arrSize = mover->getArraySize() > 1 ? mover->getArraySize() : 1;
+                    logOut << "\t" << mover->getName() << " DW DUP " << arrSize << "(0000H)\n";
+                }
+                mover = mover->getNextSymbolInfo();
+            }        
+        }
+    }
+
     ~ScopeTable()
     {
         for (uint64_t i = 0; i < this->num_of_buckets; ++i)
@@ -504,6 +507,16 @@ public:
         while (mover != NULL)
         {
             mover->printScopeTable(logOut);
+            mover = mover->getParentScope();
+        }
+    }
+
+    void printAllGlobalVarsInASM(ofstream &logOut)
+    {
+        ScopeTable *mover = this->currentScopeTable;
+        while (mover != NULL)
+        {
+            mover->printGlobalVarsInASM(logOut);
             mover = mover->getParentScope();
         }
     }

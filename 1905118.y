@@ -10,7 +10,7 @@ extern FILE *yyin;
 
 ofstream logOut, errorOut, parseTree, codeasm;
 
-int lineCount = 1, errorCount = 0, errorLine = 0, offsetForVar = 0, parentOffsetForVar = 0, labelCount = 0;
+int lineCount = 1, errorCount = 0, errorLine = 0, offsetForVar = 0, anotherOffset = 0, labelCount = 0;
 
 bool isFunctionScope = false, isZeroVal = false, isError = false, doIncop = false, doDecop = false;
 
@@ -20,9 +20,11 @@ uint64_t num_of_buckets = 11, scopeTableCounter = 1;
 
 SymbolTable *symbolTable = new SymbolTable();
 
-SymbolInfo *startSymbol;
+SymbolInfo *startSymbol, *func_def_test;
 
-map< pair<string, int>, SymbolInfo * > symbolMap;
+// map< pair<string, int>, SymbolInfo * > symbolMap;
+
+string globalLabel = "";
 
 string new_line_proc = "\n\
 new_line proc\n\
@@ -135,7 +137,7 @@ void tryToDefineFunction(SymbolInfo *s, string type_specifier) {
 		}
 		SymbolInfo *s_temp = new SymbolInfo(s);
 		symbolTable->insertSymbolInSymbolTable(s_temp, logOut);
-		symbolMap.insert(make_pair(make_pair(s->getName(), scopeTableCounter), s));
+		// symbolMap.insert(make_pair(make_pair(s->getName(), scopeTableCounter), s));
 	}
 	else {
 		if(!(finder->getIsAFunction())) {
@@ -205,6 +207,7 @@ void tryToDefineFunction(SymbolInfo *s, string type_specifier) {
 
 void tryToInsertParamsInSymbolTable() {
 	for(SymbolInfo* s : functionParameterList) {
+		// cout << s->getName() << " pppppppppp " << s << '\n';
 		if(s->getName() == "" && s->getType() == "") {
 			// TODO param is IDless error in func def
 		}
@@ -216,9 +219,10 @@ void tryToInsertParamsInSymbolTable() {
 				errorOut << "Line# " << lineCount - 1 << ": Redefinition of parameter '" << s_temp->getName() << "'" << '\n';
 				delete s_temp;
 			}
-			else {
-				symbolMap.insert(make_pair(make_pair(s->getName(), scopeTableCounter), s));
-			}
+			// else {
+			// 	// cout << s->getName() << " GGGGGGGG " << s << ' ' << scopeTableCounter << '\n';
+			// 	symbolMap.insert(make_pair(make_pair(s->getName(), scopeTableCounter), s));
+			// }
 		}
 	}
 }
@@ -346,7 +350,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
 						}
 						SymbolInfo *s_temp = new SymbolInfo($2);
 						symbolTable->insertSymbolInSymbolTable(s_temp, logOut);
-						symbolMap.insert(make_pair(make_pair($2->getName(), scopeTableCounter), $2));
+						// symbolMap.insert(make_pair(make_pair($2->getName(), scopeTableCounter), $2));
 					}
 					else {
 						$2->setDataType($1->getName());
@@ -420,7 +424,7 @@ func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
 						$2->setIsFunctionDeclared(true);					
 						SymbolInfo *s_temp = new SymbolInfo($2);
 						symbolTable->insertSymbolInSymbolTable(s_temp, logOut);
-						symbolMap.insert(make_pair(make_pair($1->getName(), scopeTableCounter), $1));
+						// symbolMap.insert(make_pair(make_pair($1->getName(), scopeTableCounter), $1));
 					}
 					else {
 						if(!(finder->getIsAFunction())) {
@@ -596,6 +600,7 @@ compound_statement : LCURL {
 						symbolTable->enterScope(scopeTableCounter++, num_of_buckets);
 						if(isFunctionScope) {
 							tryToInsertParamsInSymbolTable();
+							functionParameterList.clear();
 						}
 					} statements RCURL {
 						logOut << "compound_statement : LCURL statements RCURL" << '\n';
@@ -609,12 +614,13 @@ compound_statement : LCURL {
 
 						symbolTable->printAllScopeTables(logOut);
 						symbolTable->exitScope();
-						scopeTableCounter--;
+						// scopeTableCounter--;
 				   }
  		    	   | LCURL {						
 						symbolTable->enterScope(scopeTableCounter++, num_of_buckets);
 						if(isFunctionScope) {
 							tryToInsertParamsInSymbolTable();
+							functionParameterList.clear();
 						}
 				   } RCURL {
 						logOut << "compound_statement : LCURL RCURL" << '\n';
@@ -627,7 +633,7 @@ compound_statement : LCURL {
 
 						symbolTable->printAllScopeTables(logOut);
 						symbolTable->exitScope();
-						scopeTableCounter--;
+						// scopeTableCounter--;
 				   }
  		    	   ;
  		    
@@ -668,9 +674,9 @@ var_declaration : type_specifier declaration_list SEMICOLON {
 								}
 								delete s_temp;
 							}
-							else {
-								symbolMap.insert(make_pair(make_pair(s->getName(), scopeTableCounter), s));
-							}
+							// else {
+							// 	symbolMap.insert(make_pair(make_pair(s->getName(), scopeTableCounter), s));
+							// }
 						}
 					}
 
@@ -767,7 +773,7 @@ declaration_list : declaration_list COMMA ID {
 					$$->setRuleEndLine($1->getRuleEndLine());
 					$$->setLeafNodeStatus(false);
 					$$->addSymbolToList($1);
-
+					// cout << $1->getName() << " global " << $1 << '\n';
 					variableDeclarationList.push_back($1);
 				 }
  		  		 | ID LSQUARE CONST_INT RSQUARE {
@@ -899,17 +905,17 @@ statement : var_declaration {
 						errorCount++;
 						errorOut << "Line# " << lineCount << ": Undeclared variable '" << $3->getName() << "'" << '\n';
 					}
-					else {
-						SymbolInfo *temp = NULL;
-						for(int gg = scopeTableCounter; gg > 0; gg--) {
-							if(symbolMap[{$3->getName(), gg}]) {
-								temp = $3;
-								$3 = symbolMap[{$3->getName(), gg}];
-								break;
-							}
-						}												
-						delete temp;
-					}
+					// else {
+					// 	SymbolInfo *temp = NULL;
+					// 	for(int gg = scopeTableCounter; gg > 0; gg--) {
+					// 		if(symbolMap[{$3->getName(), gg}]) {
+					// 			temp = $3;
+					// 			$3 = symbolMap[{$3->getName(), gg}];
+					// 			break;
+					// 		}
+					// 	}												
+					// 	delete temp;
+					// }
 
 					$$->addSymbolToList($3);
 					$$->addSymbolToList($4);
@@ -995,16 +1001,18 @@ variable : ID {
 						i.e type mismatch of var
 					}
 					else {
-						SymbolInfo *temp = NULL;
-						for(int gg = scopeTableCounter; gg > 0; gg--) {
-							if(symbolMap[{$1->getName(), gg}]) {
-								temp = $1;
-								$1 = symbolMap[{$1->getName(), gg}];
-								break;
-							}
-						}												
-						delete temp;
+						// SymbolInfo *temp = NULL;
+						// for(int gg = scopeTableCounter; gg > 0; gg--) {
+						// 	if(symbolMap[{$1->getName(), gg}]) {
+						// 		temp = $1;
+						// 		$1 = symbolMap[{$1->getName(), gg}];
+						// 		// cout << lineCount << ' ' << $1->getName() << ' ' << $1 << '\n';
+						// 		break;
+						// 	}
+						// }												
+						// delete temp;
 						$$->setDataType(finder->getDataType());
+						$$->setIsAnArray($1->getIsAnArray());
 					}
 
 					$$->addSymbolToList($1);		
@@ -1035,16 +1043,18 @@ variable : ID {
 						errorOut << "Line# " << lineCount << ": '" << finder->getName() << "' is not an array\n";
 					}
 					else {
-						SymbolInfo *temp = NULL;
-						for(int gg = scopeTableCounter; gg > 0; gg--) {
-							if(symbolMap[{$1->getName(), gg}]) {
-								temp = $1;
-								$1 = symbolMap[{$1->getName(), gg}];
-								break;
-							}
-						}												
-						delete temp;
+						// SymbolInfo *temp = NULL;
+						// for(int gg = scopeTableCounter; gg > 0; gg--) {
+						// 	if(symbolMap[{$1->getName(), gg}]) {
+						// 		temp = $1;
+						// 		$1 = symbolMap[{$1->getName(), gg}];
+						// 		// cout << lineCount << ' ' << $1->getName() << ' ' << $1 << '\n';
+						// 		break;
+						// 	}
+						// }												
+						// delete temp;
 						$$->setDataType(finder->getDataType());
+						$$->setIsAnArray(finder->getIsAnArray());
 					}
 
 					//need to check the arr indexing too --> must be int
@@ -1070,6 +1080,7 @@ expression : logic_expression {
 					$$->addSymbolToList($1);
 
 					$$->setDataType($1->getDataType());
+					$$->setIsAnArray($1->getIsAnArray());
 		   }	
 		   | variable ASSIGNOP logic_expression {		
                     logOut << "expression 	: variable ASSIGNOP logic_expression 		 " << '\n';
@@ -1101,6 +1112,10 @@ expression : logic_expression {
 					else if($1->getDataType() != $3->getDataType() && $1->getDataType() != "" && $3->getDataType() != "") {
 						// TODO type mismatch error
 					}
+					else if($1->getIsAnArray() != $3->getIsAnArray()) {
+						errorCount++;
+						errorOut << "Line# " << lineCount << ": Warning: wrong type cast" << '\n';
+					}
 					else {
 						$$->setDataType($1->getDataType());
 					}
@@ -1116,6 +1131,7 @@ logic_expression : rel_expression {
 					$$->addSymbolToList($1);
 
 					$$->setDataType($1->getDataType());
+					$$->setIsAnArray($1->getIsAnArray());
 				 }
 		 		 | rel_expression LOGICOP rel_expression {
 					logOut << "logic_expression : rel_expression LOGICOP rel_expression" << '\n';
@@ -1149,6 +1165,7 @@ rel_expression	: simple_expression {
 					$$->addSymbolToList($1);
 
 					$$->setDataType($1->getDataType());
+					$$->setIsAnArray($1->getIsAnArray());
 				}
 				| simple_expression RELOP simple_expression	{
                     logOut << "rel_expression	: simple_expression RELOP simple_expression" << '\n';
@@ -1183,6 +1200,7 @@ simple_expression : term {
 					$$->addSymbolToList($1);
 
 					$$->setDataType($1->getDataType());
+					$$->setIsAnArray($1->getIsAnArray());
 				  }
 		  		  | simple_expression ADDOP term {
                     logOut << "simple_expression : simple_expression ADDOP term" << '\n';
@@ -1228,6 +1246,7 @@ term :	unary_expression {
 					$$->addSymbolToList($1);
 
 					$$->setDataType($1->getDataType());
+					$$->setIsAnArray($1->getIsAnArray());
 	 }
      |  term MULOP unary_expression {
                     logOut << "term :	term MULOP unary_expression" << '\n';
@@ -1348,6 +1367,7 @@ unary_expression : ADDOP unary_expression {
 					$$->addSymbolToList($1);
 
 					$$->setDataType($1->getDataType());
+					$$->setIsAnArray($1->getIsAnArray());
 				 }
 		 		 ;
 	
@@ -1364,6 +1384,7 @@ factor	: variable {
 					}
 					else {
 						$$->setDataType($1->getDataType());
+						$$->setIsAnArray($1->getIsAnArray());
 					}
 		}
 		| ID LPAREN argument_list RPAREN {
@@ -1420,15 +1441,15 @@ factor	: variable {
 									}
 								}
 								if(isGood) {
-									SymbolInfo *temp = NULL;
-									for(int gg = scopeTableCounter; gg > 0; gg--) {
-										if(symbolMap[{$1->getName(), gg}]) {
-											temp = $1;
-											$1 = symbolMap[{$1->getName(), gg}];
-											break;
-										}
-									}												
-									delete temp;
+									// SymbolInfo *temp = NULL;
+									// for(int gg = scopeTableCounter; gg > 0; gg--) {
+									// 	if(symbolMap[{$1->getName(), gg}]) {
+									// 		temp = $1;
+									// 		$1 = symbolMap[{$1->getName(), gg}];
+									// 		break;
+									// 	}
+									// }												
+									// delete temp;
 									$$->setDataType(finder->getDataType());
 								}
 								else {
@@ -1602,6 +1623,29 @@ void term(SymbolInfo*);
 void unary_expression(SymbolInfo*);
 void factor(SymbolInfo*);
 void variable(SymbolInfo*, bool);
+void argument_list(SymbolInfo*);
+void arguments(SymbolInfo*);
+void parameter_list(SymbolInfo*);
+
+
+void parameter_list(SymbolInfo* parameter_list_si) {
+	vector<SymbolInfo*> temp = parameter_list_si->getParseTreeChildList();
+	if(temp.size() == 2) {
+		temp[1]->baseOffset = anotherOffset + 2;
+		anotherOffset += 2;
+		functionParameterList.push_back(temp[1]);
+		/* cout << "\n\n" << temp[1] << "\n\n"; */
+	}
+	else if(temp[0]->getType() == "parameter_list") {
+		parameter_list(temp[0]);
+		if(temp.size() == 4) {
+			temp[3]->baseOffset = anotherOffset + 2;
+			anotherOffset += 2;
+			functionParameterList.push_back(temp[3]);
+			/* cout << "\n\n" << temp[3] << "\n\n"; */
+		}
+	}
+}
 
 
 void start(SymbolInfo* start_si) {
@@ -1612,7 +1656,11 @@ void start(SymbolInfo* start_si) {
 	codeasm << "\tCR EQU 0DH\n";
 	codeasm << "\tLF EQU 0AH\n";
 	codeasm << "\tnumber DB \"00000$\"\n";
+	symbolTable->printAllGlobalVarsInASM(codeasm);
+	codeasm << ".CODE\n";
 	program(start_si->getParseTreeChildList()[0]);
+	codeasm << print_output_proc;
+	codeasm << new_line_proc;
 	codeasm << "END MAIN\n";
 }
 
@@ -1632,7 +1680,7 @@ void unit(SymbolInfo* unit_si) {
 	SymbolInfo *temp = unit_si->getParseTreeChildList()[0];
 	// check the 3 cases of unit
 	if(temp->getType() == "var_declaration") {
-		var_declaration(temp, false);
+		/* var_declaration(temp, false); */
 	}
 	if(temp->getType() == "func_definition") {
 		func_definition(temp);
@@ -1652,26 +1700,61 @@ void declaration_list(SymbolInfo* declaration_list_si, bool mode) {
 	if(tempList[0]->getType() == "declaration_list") {
 		if(tempList.size() == 3) {
 			declaration_list(tempList[0], mode);
-			printAboutVarInASM(tempList[2], 1, mode);
+			SymbolInfo *finder = NULL;
+			if(symbolTable->insertSymbolInSymbolTable(tempList[2], logOut) && scopeTableCounter > 1) {
+				finder = symbolTable->lookUpSymbolInSymbolTable(tempList[2]->getName());
+				printAboutVarInASM(finder, 1, mode);
+			}
+			else {
+				errorCount++;
+				cout << "Error in declaration list\n";
+			}			
 		}
 		else {
 			declaration_list(tempList[0], mode);
-			printAboutVarInASM(tempList[2], stoi(tempList[4]->getName()), mode);
+			SymbolInfo *finder = NULL;
+			if(symbolTable->insertSymbolInSymbolTable(tempList[2], logOut) && scopeTableCounter > 1) {
+				finder = symbolTable->lookUpSymbolInSymbolTable(tempList[2]->getName());
+				printAboutVarInASM(finder, stoi(tempList[4]->getName()), mode);
+			}
+			else {
+				errorCount++;
+				cout << "Error in declaration list\n";
+			}
 		}
 	}
 	else {
-		if(tempList.size() == 1) {			
-			printAboutVarInASM(tempList[0], 1, mode);
+		if(tempList.size() == 1) {	
+			SymbolInfo *finder = NULL;
+			if(symbolTable->insertSymbolInSymbolTable(tempList[0], logOut) && scopeTableCounter > 1) {
+				finder = symbolTable->lookUpSymbolInSymbolTable(tempList[0]->getName());
+				printAboutVarInASM(finder, 1, mode);
+			}
+			else {
+				errorCount++;
+				cout << "Error in declaration list\n";
+			}					
 		}
-		else {			
-			printAboutVarInASM(tempList[0], stoi(tempList[2]->getName()), mode);
+		else {	
+			SymbolInfo *finder = NULL;
+			if(symbolTable->insertSymbolInSymbolTable(tempList[0], logOut) && scopeTableCounter > 1) {
+				finder = symbolTable->lookUpSymbolInSymbolTable(tempList[0]->getName());
+				printAboutVarInASM(finder, stoi(tempList[2]->getName()), mode);
+			}
+			else {
+				errorCount++;
+				cout << "Error in declaration list\n";
+			}					
 		}
 	}
 }
 
 void func_definition(SymbolInfo* func_definition_si) {
-	vector<SymbolInfo *> tempList = func_definition_si->getParseTreeChildList();
-	if(tempList[1]->getName() == "main") {
+	vector<SymbolInfo *> temp = func_definition_si->getParseTreeChildList();
+	globalLabel = genLabel();
+	anotherOffset = 2;
+	offsetForVar = 0;
+	/* if(tempList[1]->getName() == "main") {
 		codeasm << "MAIN PROC\n";
 		codeasm << "\tMOV AX, @DATA\n";
 		codeasm << "\tMOV DS, AX\n";
@@ -1681,7 +1764,6 @@ void func_definition(SymbolInfo* func_definition_si) {
 			offsetForVar = 0;
 			compound_statement(tempList[4]);
 			codeasm << "\tADD SP, " << -offsetForVar << '\n';
-			codeasm << "\tMOV SP, BP\n";
 			codeasm << "\tPOP BP\n";
 			offsetForVar = 0;
 		}
@@ -1693,12 +1775,55 @@ void func_definition(SymbolInfo* func_definition_si) {
 		codeasm << "MAIN ENDP\n";
 		codeasm << print_output_proc;
 		codeasm << new_line_proc;
+	} */
+	codeasm << temp[1]->getName() << " PROC\n";
+	if(temp[1]->getName() == "main") {
+		codeasm << "\tMOV AX, @DATA\n";
+		codeasm << "\tMOV DS, AX\n";
 	}
+	codeasm << "\tPUSH BP\n";
+	codeasm << "\tMOV BP, SP\n";
+
+	if(temp.size() == 6) {
+		functionParameterList.clear();
+		parameter_list(temp[3]);
+		compound_statement(temp[5]);
+	}
+	else {
+		compound_statement(temp[4]);
+	}
+
+	codeasm << globalLabel << ":\n";
+	codeasm << "\tADD SP, " << -offsetForVar << '\n';
+	codeasm << "\tPOP BP\n";
+	if(temp[1]->getName() == "main") {
+		codeasm << "\tMOV AX, 4CH\n";
+		codeasm << "\tINT 21H\n";
+	}
+	else if(anotherOffset > 2) {
+		codeasm << "\tRET " << anotherOffset - 2 << '\n';
+	}
+	else {
+		codeasm << "\tRET\n";
+	}
+	codeasm << temp[1]->getName() << " ENDP\n";
+	globalLabel = "";
+	anotherOffset = 2;
+	offsetForVar = 0;
 }
 
 void compound_statement(SymbolInfo* compound_statement_si) {
 	if(compound_statement_si->getParseTreeChildList().size() == 3) {
+		symbolTable->enterScope(scopeTableCounter++, num_of_buckets);
+		for(SymbolInfo *s : functionParameterList) {
+			if(!(symbolTable->insertSymbolInSymbolTable(s, logOut))) {
+				errorCount++;
+				cout << "Error inserting func params to symbol table\n";
+			}
+		}
+		functionParameterList.clear();
 		statements(compound_statement_si->getParseTreeChildList()[1]);
+		symbolTable->exitScope();
 	}
 }
 
@@ -1777,19 +1902,32 @@ void statement(SymbolInfo* statement_si) {
 		codeasm << "\tJMP " << label1 << '\n';
 		codeasm << label2 << ":\n";
 	}
+	else if(tempList[0]->getType() == "RETURN") {
+		expression(tempList[1]);
+		codeasm << "\tPOP AX\n";
+		codeasm << "\tJMP " << globalLabel << '\n';
+	}
 }
 
 void println(SymbolInfo* id) {
-	codeasm << "\tPUSH AX\n";
-	if(id->baseOffset == 0) {
-		codeasm << "\tMOV AX, " << id->getName() << '\n';
+	SymbolInfo *finder = symbolTable->lookUpSymbolInSymbolTable(id->getName());
+	if(finder == NULL) {
+		errorCount++;
+		cout << "Undeclared ID\n";
 	}
 	else {
-		codeasm << "\tMOV AX, " << "[BP" << id->baseOffset << "]\n";
+		codeasm << "\tPUSH AX\n";
+		if(finder->baseOffset == 0) {
+		codeasm << "\tMOV AX, " << finder->getName() << '\n';
+		}
+		else {
+			string sign = finder->baseOffset > 0 ? "+" : "";
+			codeasm << "\tMOV AX, " << "[BP" << sign << finder->baseOffset << "]\n";
+		}
+		codeasm << "\tCALL print_output\n";
+		codeasm << "\tCALL new_line\n";
+		codeasm << "\tPOP AX\n";
 	}
-	codeasm << "\tCALL print_output\n";
-	codeasm << "\tCALL new_line\n";
-	codeasm << "\tPOP AX\n";
 }
 
 void expression_statement(SymbolInfo* expression_statement_si) {
@@ -1814,14 +1952,21 @@ void expression(SymbolInfo* expression_si) {
 }
 
 void variable(SymbolInfo* variable_si, bool side) {
-	vector<SymbolInfo*> temp = variable_si->getParseTreeChildList();	
-	if(!side) {
+	vector<SymbolInfo*> temp = variable_si->getParseTreeChildList();
+	SymbolInfo *finder = symbolTable->lookUpSymbolInSymbolTable(temp[0]->getName());
+	if(finder == NULL) {
+		errorCount++;
+		cout << "Undeclared Variable\n";
+	}
+	else {
+		if(!side) {
 		if(temp.size() == 1) {
-			if(temp[0]->baseOffset == 0) {
-				codeasm << "\tMOV " << temp[0]->getName() << ", AX\n";
+			if(finder->baseOffset == 0) {
+				codeasm << "\tMOV " << finder->getName() << ", AX\n";
 			}
 			else {
-				codeasm << "\tMOV [BP" << temp[0]->baseOffset << "], AX\n";			
+				string sign = finder->baseOffset > 0 ? "+" : "";
+				codeasm << "\tMOV [BP" << sign << finder->baseOffset << "], AX\n";			
 			}
 		}
 		else {
@@ -1829,8 +1974,8 @@ void variable(SymbolInfo* variable_si, bool side) {
 			codeasm << "\tPUSH AX\n";
 			expression(temp[2]);
 			codeasm << "\tPOP BX\n"; // value of expression is now in BX
-			if(temp[0]->baseOffset == 0) {
-				codeasm << "\tLEA SI, " << temp[0]->getName() << '\n';
+			if(finder->baseOffset == 0) {
+				codeasm << "\tLEA SI, " << finder->getName() << '\n';
 				codeasm << "\tADD SI, BX\n";
 				codeasm << "\tADD SI, BX\n";				
 				codeasm << "\tPOP AX\n";
@@ -1838,7 +1983,7 @@ void variable(SymbolInfo* variable_si, bool side) {
 				codeasm << "\tPOP SI\n";
 			}
 			else {
-				codeasm << "\tMOV SI, " << temp[0]->baseOffset << '\n';
+				codeasm << "\tMOV SI, " << finder->baseOffset << '\n';
 				codeasm << "\tSUB SI, BX\n";
 				codeasm << "\tSUB SI, BX\n";				
 				codeasm << "\tPOP AX\n";
@@ -1849,26 +1994,27 @@ void variable(SymbolInfo* variable_si, bool side) {
 	}
 	else {
 		if(temp.size() == 1) {
-			if(temp[0]->baseOffset == 0) {
-				codeasm << "\tMOV AX, " << temp[0]->getName() << '\n';
+			if(finder->baseOffset == 0) {
+				codeasm << "\tMOV AX, " << finder->getName() << '\n';
 				if(doIncop) {
-					codeasm << "\tINC " << temp[0]->getName() << '\n';
+					codeasm << "\tINC " << finder->getName() << '\n';
 				}
 				if(doDecop) {
-					codeasm << "\tDEC " << temp[0]->getName() << '\n';
+					codeasm << "\tDEC " << finder->getName() << '\n';
 				}
 			}
 			else {
-				codeasm << "\tMOV AX, " << "[BP" << temp[0]->baseOffset << "]\n";
+				string sign = finder->baseOffset > 0 ? "+" : "";
+				codeasm << "\tMOV AX, " << "[BP" << sign << finder->baseOffset << "]\n";
 				if(doIncop) {
-					codeasm << "\tMOV CX, " << "[BP" << temp[0]->baseOffset << "]\n";
+					codeasm << "\tMOV CX, " << "[BP" << sign << finder->baseOffset << "]\n";
 					codeasm << "\tINC CX\n";
-					codeasm << "\tMOV [BP" << temp[0]->baseOffset << "], CX\n";
+					codeasm << "\tMOV [BP" << sign << finder->baseOffset << "], CX\n";
 				}
 				if(doDecop) {
-					codeasm << "\tMOV CX, " << "[BP" << temp[0]->baseOffset << "]\n";
+					codeasm << "\tMOV CX, " << "[BP" << sign << finder->baseOffset << "]\n";
 					codeasm << "\tDEC CX\n";
-					codeasm << "\tMOV [BP" << temp[0]->baseOffset << "], CX\n";
+					codeasm << "\tMOV [BP" << sign << finder->baseOffset << "], CX\n";
 				}
 			}
 		}
@@ -1876,8 +2022,8 @@ void variable(SymbolInfo* variable_si, bool side) {
 			codeasm << "\tPUSH SI\n";
 			expression(temp[2]);
 			codeasm << "\tPOP BX\n"; // value of expression is now in BX
-			if(temp[0]->baseOffset == 0) {
-				codeasm << "\tLEA SI, " << temp[0]->getName() << '\n';
+			if(finder->baseOffset == 0) {
+				codeasm << "\tLEA SI, " << finder->getName() << '\n';
 				codeasm << "\tADD SI, BX\n";
 				codeasm << "\tADD SI, BX\n";				
 				codeasm << "\tMOV AX, [SI]\n";
@@ -1894,7 +2040,7 @@ void variable(SymbolInfo* variable_si, bool side) {
 				codeasm << "\tPOP SI\n";
 			}
 			else {
-				codeasm << "\tMOV SI, " << temp[0]->baseOffset << '\n';
+				codeasm << "\tMOV SI, " << finder->baseOffset << '\n';
 				codeasm << "\tSUB SI, BX\n";
 				codeasm << "\tSUB SI, BX\n";				
 				codeasm << "\tMOV AX, [BP+SI]\n";
@@ -1912,6 +2058,7 @@ void variable(SymbolInfo* variable_si, bool side) {
 			}
 		}
 	}
+	}	
 }
 
 void logic_expression(SymbolInfo* logic_expression_si) {
@@ -2084,12 +2231,41 @@ void factor(SymbolInfo* factor_si) {
 		expression(temp[1]);
 		codeasm << "\tPOP AX\n";
 	}
+	else if(temp[0]->getType() == "ID") {
+		argument_list(temp[2]);
+		SymbolInfo *finder = symbolTable->lookUpSymbolInSymbolTable(temp[0]->getName());
+		if(finder == NULL) {
+			errorCount++;
+			cout << "Undefined function\n";
+		}
+		else {
+			codeasm << "\tCALL " << temp[0]->getName() << '\n';
+		}
+	}
 	codeasm << "\tPUSH AX\n";
+}
+
+void argument_list(SymbolInfo *argument_list_si) {
+	if(argument_list_si->getParseTreeChildList().size()) {
+		arguments(argument_list_si->getParseTreeChildList()[0]);
+	}
+}
+
+void arguments(SymbolInfo *arguments_si) {
+	vector<SymbolInfo *> temp = arguments_si->getParseTreeChildList();
+	if(temp[0]->getType() == "logic_expression") {
+		logic_expression(temp[0]);
+	}
+	else {
+		logic_expression(temp[2]);
+		arguments(temp[0]);
+	}
 }
 
 
 int main(int argc,char *argv[])
 {
+
 	FILE *fp;
 
 	if((fp=fopen(argv[1],"r"))==NULL)
@@ -2097,18 +2273,6 @@ int main(int argc,char *argv[])
 		printf("Cannot Open Input File.\n");
 		exit(1);
 	}
-
-	/* fp2= fopen(argv[2],"w");
-	fclose(fp2);
-	fp3= fopen(argv[3],"w");
-	fclose(fp3);
-	
-	fp2= fopen(argv[2],"a");
-	fp3= fopen(argv[3],"a"); */
-
-	/* logOut.open("log.txt");
-	errorOut.open("error.txt");
-	parseTree.open("parsetree.txt"); */
 
 	parseTree.open(argv[2]);
 	errorOut.open(argv[3]);
@@ -2120,16 +2284,11 @@ int main(int argc,char *argv[])
 
 	symbolTable->enterScope(scopeTableCounter, num_of_buckets);
 
-	//TODOICG need to check errorCount
 
 	yyparse();
+
 	
-
-	/* fclose(fp2);
-	fclose(fp3); */
-
-	/* symbolTable->printAllScopeTables(logOut); */
-
+	scopeTableCounter = 1;
 	start(startSymbol);
 
 	delete symbolTable;

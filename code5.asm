@@ -1,0 +1,544 @@
+.MODEL SMALL
+.STACK 1000H
+.DATA
+	CR EQU 0DH
+	LF EQU 0AH
+	number DB "00000$"
+.CODE
+f PROC
+	PUSH BP
+	MOV BP, SP
+L2:
+	SUB SP, 2
+L3:
+	MOV AX, 5
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	MOV [BP-2], AX
+	PUSH AX
+	POP AX
+L4:
+L5:
+	MOV AX, [BP-2]
+	PUSH AX
+	MOV AX, 0
+	PUSH AX
+	POP BX
+	POP AX
+	CMP AX, BX
+	JG L7
+	MOV AX, 0
+	JMP L8
+L7:
+	MOV AX, 1
+L8:
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	CMP AX, 0
+	JE L6
+L9:
+L10:
+	MOV AX, [BP+4]
+	MOV CX, [BP+4]
+	INC CX
+	MOV [BP+4], CX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+L11:
+	MOV AX, [BP-2]
+	MOV CX, [BP-2]
+	DEC CX
+	MOV [BP-2], CX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	JMP L5
+L6:
+L12:
+	MOV AX, 3
+	PUSH AX
+	MOV AX, [BP+4]
+	PUSH AX
+	POP BX
+	POP AX
+	CWD
+	IMUL BX
+	PUSH AX
+	MOV AX, 7
+	PUSH AX
+	POP BX
+	POP AX
+	SUB AX, BX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	JMP L1
+L13:
+	MOV AX, 9
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	MOV [BP+4], AX
+	PUSH AX
+	POP AX
+L1:
+	ADD SP, 2
+	POP BP
+	RET 2
+f ENDP
+g PROC
+	PUSH BP
+	MOV BP, SP
+L15:
+	SUB SP, 2
+	SUB SP, 2
+L16:
+	MOV AX, [BP+4]
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	CALL f
+	PUSH AX
+	MOV AX, [BP+4]
+	PUSH AX
+	POP BX
+	POP AX
+	ADD AX, BX
+	PUSH AX
+	MOV AX, [BP+6]
+	PUSH AX
+	POP BX
+	POP AX
+	ADD AX, BX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	MOV [BP-2], AX
+	PUSH AX
+	POP AX
+L17:
+	MOV AX, 0
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	MOV [BP-4], AX
+	PUSH AX
+	POP AX
+L18:
+	MOV AX, [BP-4]
+	PUSH AX
+	MOV AX, 7
+	PUSH AX
+	POP BX
+	POP AX
+	CMP AX, BX
+	JL L20
+	MOV AX, 0
+	JMP L21
+L20:
+	MOV AX, 1
+L21:
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	CMP AX, 0
+	JE L19
+L22:
+L23:
+	MOV AX, [BP-4]
+	PUSH AX
+	MOV AX, 3
+	PUSH AX
+	POP BX
+	POP AX
+	CWD
+	IDIV BX
+	MOV AX, DX
+	PUSH AX
+	MOV AX, 0
+	PUSH AX
+	POP BX
+	POP AX
+	CMP AX, BX
+	JE L26
+	MOV AX, 0
+	JMP L27
+L26:
+	MOV AX, 1
+L27:
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	CMP AX, 0
+	JE L24
+L28:
+L29:
+	MOV AX, [BP-2]
+	PUSH AX
+	MOV AX, 5
+	PUSH AX
+	POP BX
+	POP AX
+	ADD AX, BX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	MOV [BP-2], AX
+	PUSH AX
+	POP AX
+	JMP L25
+L24:
+L30:
+L31:
+	MOV AX, [BP-2]
+	PUSH AX
+	MOV AX, 1
+	PUSH AX
+	POP BX
+	POP AX
+	SUB AX, BX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	MOV [BP-2], AX
+	PUSH AX
+	POP AX
+L25:
+	MOV AX, [BP-4]
+	MOV CX, [BP-4]
+	INC CX
+	MOV [BP-4], CX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	JMP L18
+L19:
+L32:
+	MOV AX, [BP-2]
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	JMP L14
+L14:
+	ADD SP, 4
+	POP BP
+	RET 4
+g ENDP
+main PROC
+	MOV AX, @DATA
+	MOV DS, AX
+	PUSH BP
+	MOV BP, SP
+L34:
+	SUB SP, 2
+	SUB SP, 2
+	SUB SP, 2
+L35:
+	MOV AX, 1
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	MOV [BP-2], AX
+	PUSH AX
+	POP AX
+L36:
+	MOV AX, 2
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	MOV [BP-4], AX
+	PUSH AX
+	POP AX
+L37:
+	MOV AX, [BP-4]
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	MOV AX, [BP-2]
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	CALL g
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	MOV [BP-2], AX
+	PUSH AX
+	POP AX
+L38:
+	PUSH AX
+	MOV AX, [BP-2]
+	CALL print_output
+	CALL new_line
+	POP AX
+L39:
+	MOV AX, 0
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	MOV [BP-6], AX
+	PUSH AX
+	POP AX
+L40:
+	MOV AX, [BP-6]
+	PUSH AX
+	MOV AX, 4
+	PUSH AX
+	POP BX
+	POP AX
+	CMP AX, BX
+	JL L42
+	MOV AX, 0
+	JMP L43
+L42:
+	MOV AX, 1
+L43:
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	CMP AX, 0
+	JE L41
+L44:
+L45:
+	MOV AX, 3
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	MOV [BP-2], AX
+	PUSH AX
+	POP AX
+L46:
+L47:
+	MOV AX, [BP-2]
+	PUSH AX
+	MOV AX, 0
+	PUSH AX
+	POP BX
+	POP AX
+	CMP AX, BX
+	JG L49
+	MOV AX, 0
+	JMP L50
+L49:
+	MOV AX, 1
+L50:
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	CMP AX, 0
+	JE L48
+L51:
+L52:
+	MOV AX, [BP-4]
+	MOV CX, [BP-4]
+	INC CX
+	MOV [BP-4], CX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+L53:
+	MOV AX, [BP-2]
+	MOV CX, [BP-2]
+	DEC CX
+	MOV [BP-2], CX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	JMP L47
+L48:
+	MOV AX, [BP-6]
+	MOV CX, [BP-6]
+	INC CX
+	MOV [BP-6], CX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	JMP L40
+L41:
+L54:
+	PUSH AX
+	MOV AX, [BP-2]
+	CALL print_output
+	CALL new_line
+	POP AX
+L55:
+	PUSH AX
+	MOV AX, [BP-4]
+	CALL print_output
+	CALL new_line
+	POP AX
+L56:
+	PUSH AX
+	MOV AX, [BP-6]
+	CALL print_output
+	CALL new_line
+	POP AX
+L57:
+	MOV AX, 0
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	PUSH AX
+	POP AX
+	JMP L33
+L33:
+	ADD SP, 6
+	POP BP
+	MOV AX, 4CH
+	INT 21H
+main ENDP
+
+print_output proc  ;print what is in ax
+    push ax
+    push bx
+    push cx
+    push dx
+    push si
+    lea si,number
+    mov bx,10
+    add si,4
+    cmp ax,0
+    jnge negate
+    print:
+    xor dx,dx
+    div bx
+    mov [si],dl
+    add [si],'0'
+    dec si
+    cmp ax,0
+    jne print
+    inc si
+    lea dx,si
+    mov ah,9
+    int 21h
+    pop si
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+    ret
+    negate:
+    push ax
+    mov ah,2
+    mov dl,'-'
+    int 21h
+    pop ax
+    neg ax
+    jmp print
+print_output endp
+
+new_line proc
+    push ax
+    push dx
+    mov ah,2
+    mov dl,cr
+    int 21h
+    mov ah,2
+    mov dl,lf
+    int 21h
+    pop dx
+    pop ax
+    ret
+new_line endp
+
+END MAIN
