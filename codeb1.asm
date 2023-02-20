@@ -122,7 +122,7 @@ L8:
 	POP AX
 	JMP L1
 L1:
-	ADD SP, 0
+	MOV SP, BP
 	POP BP
 	RET 4
 foo ENDP
@@ -181,11 +181,9 @@ L13:
 	PUSH AX
 	POP AX
 L14:
-	PUSH AX
 	MOV AX, [BP-6]
-	CALL print_output
-	CALL new_line
-	POP AX
+	CALL PRINT_OUTPUT
+	CALL NEW_LINE
 L15:
 	MOV AX, 0
 	PUSH AX
@@ -198,63 +196,63 @@ L15:
 	POP AX
 	JMP L9
 L9:
-	ADD SP, 6
+	MOV SP, BP
 	POP BP
 	MOV AX, 4CH
 	INT 21H
 main ENDP
 
-print_output proc  ;print what is in ax
-    push ax
-    push bx
-    push cx
-    push dx
-    push si
-    lea si,number
-    mov bx,10
-    add si,4
-    cmp ax,0
-    jnge negate
-    print:
-    xor dx,dx
-    div bx
-    mov [si],dl
-    add [si],'0'
-    dec si
-    cmp ax,0
-    jne print
-    inc si
-    lea dx,si
-    mov ah,9
-    int 21h
-    pop si
-    pop dx
-    pop cx
-    pop bx
-    pop ax
-    ret
-    negate:
-    push ax
-    mov ah,2
-    mov dl,'-'
-    int 21h
-    pop ax
-    neg ax
-    jmp print
-print_output endp
+PRINT_OUTPUT PROC  ;PRINT WHAT IS IN AX
+	PUSH AX
+	PUSH BX
+	PUSH CX
+	PUSH DX
+	PUSH SI
+	LEA SI, NUMBER
+	MOV BX, 10
+	ADD SI, 4
+	CMP AX, 0
+	JNGE NEGATE
+PRINT:
+	XOR DX, DX
+	DIV BX
+	MOV [SI], DL
+	ADD [SI], '0'
+	DEC SI
+	CMP AX, 0
+	JNE PRINT
+	INC SI
+	LEA DX, SI
+	MOV AH, 9
+	INT 21H
+	POP SI
+	POP DX
+	POP CX
+	POP BX
+	POP AX
+	RET
+NEGATE:
+	PUSH AX
+	MOV AH, 2
+	MOV DL, '-'
+	INT 21H
+	POP AX
+	NEG AX
+	JMP PRINT
+PRINT_OUTPUT ENDP
 
-new_line proc
-    push ax
-    push dx
-    mov ah,2
-    mov dl,cr
-    int 21h
-    mov ah,2
-    mov dl,lf
-    int 21h
-    pop dx
-    pop ax
-    ret
-new_line endp
+NEW_LINE PROC
+	PUSH AX
+	PUSH DX
+	MOV AH, 2
+	MOV DL, CR
+	INT 21H
+	MOV AH, 2
+	MOV DL, LF
+	INT 21H
+	POP DX
+	POP AX
+	RET
+NEW_LINE ENDP
 
 END MAIN

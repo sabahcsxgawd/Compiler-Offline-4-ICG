@@ -397,7 +397,11 @@ public:
             {
                 if(!mover->getIsAFunction()) {
                     int arrSize = mover->getArraySize() > 1 ? mover->getArraySize() : 1;
-                    logOut << "\t" << mover->getName() << " DW DUP " << arrSize << "(0000H)\n";
+                    // string name = mover->getName();
+                    // if(name == "number") {
+                    //     name = '_' + mover->getName();
+                    // }
+                    logOut << "\t" << mover->getName() << " DW DUP " << arrSize << " (0000H)\n";
                 }
                 mover = mover->getNextSymbolInfo();
             }        

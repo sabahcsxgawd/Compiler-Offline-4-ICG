@@ -3,12 +3,14 @@
 using namespace std;
 
 #include "1905118_symbol_table.h"
+#include "optimizer.h"
 
 int yyparse(void);
 int yylex(void);
 extern FILE *yyin;
 
-ofstream logOut, errorOut, parseTree, codeasm;
+ofstream logOut, errorOut, parseTree, codeasm, optcodeasm;
+ifstream unoptcodeasm;
 
 int lineCount = 1, errorCount = 0, errorLine = 0, offsetForVar = 0, anotherOffset = 0, labelCount = 0;
 
@@ -27,59 +29,59 @@ SymbolInfo *startSymbol, *func_def_test;
 string globalLabel = "";
 
 string new_line_proc = "\n\
-new_line proc\n\
-    push ax\n\
-    push dx\n\
-    mov ah,2\n\
-    mov dl,cr\n\
-    int 21h\n\
-    mov ah,2\n\
-    mov dl,lf\n\
-    int 21h\n\
-    pop dx\n\
-    pop ax\n\
-    ret\n\
-new_line endp\n\n";
+NEW_LINE PROC\n\
+	PUSH AX\n\
+	PUSH DX\n\
+	MOV AH, 2\n\
+	MOV DL, CR\n\
+	INT 21H\n\
+	MOV AH, 2\n\
+	MOV DL, LF\n\
+	INT 21H\n\
+	POP DX\n\
+	POP AX\n\
+	RET\n\
+NEW_LINE ENDP\n\n";
 
 string print_output_proc = "\n\
-print_output proc  ;print what is in ax\n\
-    push ax\n\
-    push bx\n\
-    push cx\n\
-    push dx\n\
-    push si\n\
-    lea si,number\n\
-    mov bx,10\n\
-    add si,4\n\
-    cmp ax,0\n\
-    jnge negate\n\
-    print:\n\
-    xor dx,dx\n\
-    div bx\n\
-    mov [si],dl\n\
-    add [si],'0'\n\
-    dec si\n\
-    cmp ax,0\n\
-    jne print\n\
-    inc si\n\
-    lea dx,si\n\
-    mov ah,9\n\
-    int 21h\n\
-    pop si\n\
-    pop dx\n\
-    pop cx\n\
-    pop bx\n\
-    pop ax\n\
-    ret\n\
-    negate:\n\
-    push ax\n\
-    mov ah,2\n\
-    mov dl,'-'\n\
-    int 21h\n\
-    pop ax\n\
-    neg ax\n\
-    jmp print\n\
-print_output endp\n";
+PRINT_OUTPUT PROC  ;PRINT WHAT IS IN AX\n\
+	PUSH AX\n\
+	PUSH BX\n\
+	PUSH CX\n\
+	PUSH DX\n\
+	PUSH SI\n\
+	LEA SI, NUMBER\n\
+	MOV BX, 10\n\
+	ADD SI, 4\n\
+	CMP AX, 0\n\
+	JNGE NEGATE\n\
+PRINT:\n\
+	XOR DX, DX\n\
+	DIV BX\n\
+	MOV [SI], DL\n\
+	ADD [SI], '0'\n\
+	DEC SI\n\
+	CMP AX, 0\n\
+	JNE PRINT\n\
+	INC SI\n\
+	LEA DX, SI\n\
+	MOV AH, 9\n\
+	INT 21H\n\
+	POP SI\n\
+	POP DX\n\
+	POP CX\n\
+	POP BX\n\
+	POP AX\n\
+	RET\n\
+NEGATE:\n\
+	PUSH AX\n\
+	MOV AH, 2\n\
+	MOV DL, '-'\n\
+	INT 21H\n\
+	POP AX\n\
+	NEG AX\n\
+	JMP PRINT\n\
+PRINT_OUTPUT ENDP\n";
 
 void yyerror(char *s)
 {
@@ -1766,7 +1768,7 @@ void func_definition(SymbolInfo* func_definition_si) {
 	}
 
 	codeasm << globalLabel << ":\n";
-	codeasm << "\tADD SP, " << -offsetForVar << '\n';
+	codeasm << "\tMOV SP, BP\n";
 	codeasm << "\tPOP BP\n";
 	if(temp[1]->getName() == "main") {
 		codeasm << "\tMOV AX, 4CH\n";
@@ -1888,7 +1890,7 @@ void println(SymbolInfo* id) {
 		cout << "Undeclared ID\n";
 	}
 	else {
-		codeasm << "\tPUSH AX\n";
+		/* codeasm << "\tPUSH AX\n"; */
 		if(finder->baseOffset == 0) {
 		codeasm << "\tMOV AX, " << finder->getName() << '\n';
 		}
@@ -1896,9 +1898,9 @@ void println(SymbolInfo* id) {
 			string sign = finder->baseOffset > 0 ? "+" : "";
 			codeasm << "\tMOV AX, " << "[BP" << sign << finder->baseOffset << "]\n";
 		}
-		codeasm << "\tCALL print_output\n";
-		codeasm << "\tCALL new_line\n";
-		codeasm << "\tPOP AX\n";
+		codeasm << "\tCALL PRINT_OUTPUT\n";
+		codeasm << "\tCALL NEW_LINE\n";
+		/* codeasm << "\tPOP AX\n"; */
 	}
 }
 
@@ -2042,14 +2044,14 @@ void logic_expression(SymbolInfo* logic_expression_si) {
 		}
 		else {
 			rel_expression(temp[0]);
-			rel_expression(temp[2]);
-			codeasm << "\tPOP BX\n";
 			codeasm << "\tPOP AX\n";
 			string label1 = genLabel();
 			string label2 = genLabel();
 			if(temp[1]->getName() == "||") {
 				codeasm << "\tCMP AX, 0\n";
 				codeasm << "\tJNE " << label1 << '\n';
+				rel_expression(temp[2]);
+				codeasm << "\tPOP BX\n";
 				codeasm << "\tCMP BX, 0\n";
 				codeasm << "\tJNE " << label1 << '\n';
 				codeasm << "\tMOV AX, 0\n";
@@ -2061,6 +2063,8 @@ void logic_expression(SymbolInfo* logic_expression_si) {
 			else if(temp[1]->getName() == "&&") {
 				codeasm << "\tCMP AX, 0\n";
 				codeasm << "\tJE " << label1 << '\n';
+				rel_expression(temp[2]);
+				codeasm << "\tPOP BX\n";
 				codeasm << "\tCMP BX, 0\n";
 				codeasm << "\tJE " << label1 << '\n';
 				codeasm << "\tMOV AX, 1\n";
@@ -2250,6 +2254,7 @@ int main(int argc,char *argv[])
 	errorOut.open(argv[3]);
 	logOut.open(argv[4]);
 	codeasm.open(argv[5]);
+	optcodeasm.open(argv[6]);
 	
 
 	yyin=fp;
@@ -2272,6 +2277,10 @@ int main(int argc,char *argv[])
 	errorOut.close();
 	parseTree.close();
 	codeasm.close();
+	unoptcodeasm.open(argv[5]);
+	optimize(unoptcodeasm, optcodeasm);
+	unoptcodeasm.close();
+	optcodeasm.close();
 
 	fclose(fp);
 	
