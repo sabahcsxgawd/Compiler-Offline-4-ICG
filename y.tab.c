@@ -3696,9 +3696,11 @@ void unit(SymbolInfo* unit_si) {
 	SymbolInfo *temp = unit_si->getParseTreeChildList()[0];
 	// check the 3 cases of unit
 	if(temp->getType() == "var_declaration") {
+		codeasm << "\t;Line no " << temp->getRuleStartLine() << " var_declaration\n";
 		/* var_declaration(temp, false); */
 	}
 	if(temp->getType() == "func_definition") {
+		codeasm << "\t;Line no " << temp->getRuleStartLine() << " func_definition\n";
 		func_definition(temp);
 	}
 }
@@ -3780,10 +3782,13 @@ void func_definition(SymbolInfo* func_definition_si) {
 
 	if(temp.size() == 6) {
 		functionParameterList.clear();
+		codeasm << "\t;Line no " << temp[3]->getRuleStartLine() << " parameter_list\n";
 		parameter_list(temp[3]);
+		codeasm << "\t;Line no " << temp[5]->getRuleStartLine() << " compound_statement\n";
 		compound_statement(temp[5]);
 	}
 	else {
+		codeasm << "\t;Line no " << temp[4]->getRuleStartLine() << " compound_statement\n";
 		compound_statement(temp[4]);
 	}
 
@@ -3816,17 +3821,20 @@ void compound_statement(SymbolInfo* compound_statement_si) {
 			}
 		}
 		functionParameterList.clear();
+		/* codeasm << "\t;Line no " << lineCount << " statements\n"; */
 		statements(compound_statement_si->getParseTreeChildList()[1]);
 		symbolTable->exitScope();
 	}
 }
 
 void statements(SymbolInfo* statements_si) {
-	if(statements_si->getParseTreeChildList().size() == 1) {		
+	if(statements_si->getParseTreeChildList().size() == 1) {
+		/* codeasm << "\t;Line no " << lineCount << " statement\n";	 */
 		statement(statements_si->getParseTreeChildList()[0]);
 	}
 	else {
 		statements(statements_si->getParseTreeChildList()[0]);
+		/* codeasm << "\t;Line no " << lineCount << " statement\n"; */
 		statement(statements_si->getParseTreeChildList()[1]);
 	}
 }
@@ -3835,19 +3843,24 @@ void statement(SymbolInfo* statement_si) {
 	codeasm << genLabel() << ":\n";
 	vector<SymbolInfo *> tempList = statement_si->getParseTreeChildList();
 	if(tempList[0]->getType() == "var_declaration") {
+		codeasm << "\t;Line no " << tempList[0]->getRuleStartLine() << " var_declaration\n";
 		var_declaration(tempList[0]);
 	}
 	else if(tempList[0]->getType() == "compound_statement") {
+		codeasm << "\t;Line no " << tempList[0]->getRuleStartLine() << " compound_statement\n";
 		compound_statement(tempList[0]);
 	}
 	else if(tempList[0]->getType() == "PRNTLN") {
+		codeasm << "\t;Line no " << tempList[0]->getRuleStartLine() << " println\n";
 		println(tempList[2]);
 	}
 	else if(tempList[0]->getType() == "expression_statement") {
+		codeasm << "\t;Line no " << tempList[0]->getRuleStartLine() << " expression_statement\n";
 		expression_statement(tempList[0]);
 	}
-	else if(tempList[0]->getType() == "IF") {
+	else if(tempList[0]->getType() == "IF") {		
 		if(tempList.size() == 5) {
+			codeasm << "\t;Line no " << tempList[0]->getRuleStartLine() << " IF BLOCK\n";
 			string label = genLabel();
 			expression(tempList[2]);
 			codeasm << "\tPOP AX\n";
@@ -3857,6 +3870,7 @@ void statement(SymbolInfo* statement_si) {
 			codeasm << label << ":\n";
 		}
 		else {
+			codeasm << "\t;Line no " << tempList[0]->getRuleStartLine() << " IF ELSE BLOCK\n";
 			string label1 = genLabel();
 			string label2 = genLabel();
 			expression(tempList[2]);
@@ -3871,6 +3885,7 @@ void statement(SymbolInfo* statement_si) {
 		}
 	}
 	else if(tempList[0]->getType() == "WHILE") {
+		codeasm << "\t;Line no " << tempList[0]->getRuleStartLine() << " WHILE LOOP\n";
 		string label1 = genLabel();
 		string label2 = genLabel();
 		codeasm << label1 << ":\n";
@@ -3883,6 +3898,7 @@ void statement(SymbolInfo* statement_si) {
 		codeasm << label2 << ":\n";
 	}
 	else if(tempList[0]->getType() == "FOR") {
+		codeasm << "\t;Line no " << tempList[0]->getRuleStartLine() << " FOR LOOP\n";
 		expression_statement(tempList[2]);
 		string label1 = genLabel();
 		string label2 = genLabel();
@@ -3897,6 +3913,7 @@ void statement(SymbolInfo* statement_si) {
 		codeasm << label2 << ":\n";
 	}
 	else if(tempList[0]->getType() == "RETURN") {
+		codeasm << "\t;Line no " << tempList[0]->getRuleStartLine() << " RETURN STATEMENT\n";
 		expression(tempList[1]);
 		codeasm << "\tPOP AX\n";
 		codeasm << "\tJMP " << globalLabel << '\n';
@@ -3926,6 +3943,7 @@ void println(SymbolInfo* id) {
 
 void expression_statement(SymbolInfo* expression_statement_si) {
 	if(expression_statement_si->getParseTreeChildList()[0]->getType() == "expression") {
+		codeasm << "\t;Line no " << expression_statement_si->getParseTreeChildList()[0]->getRuleStartLine() << " expression\n";
 		expression(expression_statement_si->getParseTreeChildList()[0]);
 		codeasm << "\tPOP AX\n";
 	}
@@ -3934,12 +3952,15 @@ void expression_statement(SymbolInfo* expression_statement_si) {
 void expression(SymbolInfo* expression_si) {
 	vector<SymbolInfo*> temp = expression_si->getParseTreeChildList();
 	if(temp[0]->getType() == "logic_expression") {
+		/* codeasm << "\t;Line no " << lineCount << " logic_expression\n"; */
 		logic_expression(temp[0]);
 		codeasm << "\tPOP AX\n";
 	}
 	else if(temp[0]->getType() == "variable") {
+		/* codeasm << "\t;Line no " << lineCount << " logic_expression\n"; */
 		logic_expression(temp[2]);
 		codeasm << "\tPOP AX\n";
+		codeasm << "\t;Line no " << temp[0]->getRuleStartLine() << " variable assignop\n";
 		variable(temp[0], false);
 	}
 	codeasm << "\tPUSH AX\n";
@@ -4059,10 +4080,12 @@ void logic_expression(SymbolInfo* logic_expression_si) {
 	vector<SymbolInfo*> temp = logic_expression_si->getParseTreeChildList();
 	if(temp[0]->getType() == "rel_expression") {
 		if(temp.size() == 1) {
+			/* codeasm << "\t;Line no " << lineCount << " rel_expression\n"; */
 			rel_expression(temp[0]);
 			codeasm << "\tPOP AX\n";
 		}
 		else {
+			/* codeasm << "\t;Line no " << lineCount << " rel_expression with logicop\n"; */
 			rel_expression(temp[0]);
 			codeasm << "\tPOP AX\n";
 			string label1 = genLabel();
@@ -4070,6 +4093,7 @@ void logic_expression(SymbolInfo* logic_expression_si) {
 			if(temp[1]->getName() == "||") {
 				codeasm << "\tCMP AX, 0\n";
 				codeasm << "\tJNE " << label1 << '\n';
+				codeasm << "\t;Line no " << temp[1]->getRuleStartLine() << " rel_expression with logicop ||\n";
 				rel_expression(temp[2]);
 				codeasm << "\tPOP BX\n";
 				codeasm << "\tCMP BX, 0\n";
@@ -4083,6 +4107,7 @@ void logic_expression(SymbolInfo* logic_expression_si) {
 			else if(temp[1]->getName() == "&&") {
 				codeasm << "\tCMP AX, 0\n";
 				codeasm << "\tJE " << label1 << '\n';
+				codeasm << "\t;Line no " << temp[1]->getRuleStartLine() << " rel_expression with logicop &&\n";
 				rel_expression(temp[2]);
 				codeasm << "\tPOP BX\n";
 				codeasm << "\tCMP BX, 0\n";
@@ -4102,10 +4127,12 @@ void rel_expression(SymbolInfo* rel_expression_si) {
 	vector<SymbolInfo*> temp = rel_expression_si->getParseTreeChildList();
 	if(temp[0]->getType() == "simple_expression") {
 		if(temp.size() == 1) {
+			/* codeasm << "\t;Line no " << lineCount << " simple_expression\n"; */
 			simple_expression(temp[0]);
 			codeasm << "\tPOP AX\n";
 		}
 		else {
+			codeasm << "\t;Line no " << temp[1]->getRuleStartLine() << " simple_expression with relop\n";
 			simple_expression(temp[0]);
 			simple_expression(temp[2]);
 			codeasm << "\tPOP BX\n";
@@ -4134,6 +4161,7 @@ void rel_expression(SymbolInfo* rel_expression_si) {
 void simple_expression(SymbolInfo* simple_expression_si) {
 	vector<SymbolInfo*> temp = simple_expression_si->getParseTreeChildList();
 	if(temp[0]->getType() == "term") {
+		/* codeasm << "\t;Line no " << lineCount << " term\n"; */
 		term(temp[0]);
 	}
 	else {
@@ -4142,9 +4170,11 @@ void simple_expression(SymbolInfo* simple_expression_si) {
 		codeasm << "\tPOP BX\n";
 		codeasm << "\tPOP AX\n";
 		if(temp[1]->getName() == "+") {
+			codeasm << "\t;Line no " << temp[1]->getRuleStartLine() << " term addition\n";
 			codeasm << "\tADD AX, BX\n";
 		}
 		else {
+			codeasm << "\t;Line no " << temp[1]->getRuleStartLine() << " term subtraction\n";
 			codeasm << "\tSUB AX, BX\n";
 		}
 		codeasm << "\tPUSH AX\n";
@@ -4154,9 +4184,11 @@ void simple_expression(SymbolInfo* simple_expression_si) {
 void term(SymbolInfo* term_si) {
 	vector<SymbolInfo*> temp = term_si->getParseTreeChildList();
 	if(temp[0]->getType() == "unary_expression") {
+		/* codeasm << "\t;Line no " << lineCount << " unary_expression\n"; */
 		unary_expression(temp[0]);
 	}
 	else {
+		/* codeasm << "\t;Line no " << lineCount << " term mulop unary_expression\n"; */
 		term(temp[0]);
 		unary_expression(temp[2]);
 		codeasm << "\tPOP BX\n";
@@ -4164,12 +4196,15 @@ void term(SymbolInfo* term_si) {
 
 		codeasm << "\tCWD\n";
 		if(temp[1]->getName() == "*") {
+			codeasm << "\t;Line no " << temp[1]->getRuleStartLine() << " multiplication op\n";
 			codeasm << "\tIMUL BX\n";
 		}
 		else if(temp[1]->getName() == "/") {
+			codeasm << "\t;Line no " << temp[1]->getRuleStartLine() << " division op\n";
 			codeasm << "\tIDIV BX\n";
 		}
 		else if(temp[1]->getName() == "%") {
+			codeasm << "\t;Line no " << temp[1]->getRuleStartLine() << " modulus op\n";
 			codeasm << "\tIDIV BX\n";
 			codeasm << "\tMOV AX, DX\n";
 		}		
@@ -4180,15 +4215,18 @@ void term(SymbolInfo* term_si) {
 void unary_expression(SymbolInfo* unary_expression_si) {
 	vector<SymbolInfo*> temp = unary_expression_si->getParseTreeChildList();
 	if(temp[0]->getType() == "factor") {
+		/* codeasm << "\t;Line no " << lineCount << " factor\n"; */
 		factor(temp[0]);		
 	}
 	else {
 		unary_expression(temp[1]);
 		codeasm << "\tPOP AX\n";
 		if(temp[0]->getName() == "-") {
+			codeasm << "\t;Line no " << temp[0]->getRuleStartLine() << " NEGATION of factor\n";
 			codeasm << "\tNEG AX\n";
 		}
 		else if(temp[0]->getName() == "!") {
+			codeasm << "\t;Line no " << temp[0]->getRuleStartLine() << " NOT op of factor\n";
 			string label1 = genLabel();
 			string label2 = genLabel();
 			codeasm << "\tCMP AX, 0\n";
@@ -4206,28 +4244,34 @@ void unary_expression(SymbolInfo* unary_expression_si) {
 void factor(SymbolInfo* factor_si) {
 	vector<SymbolInfo*> temp = factor_si->getParseTreeChildList();
 	if(temp[0]->getType() == "CONST_INT") {
+		codeasm << "\t;Line no " << temp[0]->getRuleStartLine() << " CONST_INT with value " << temp[0]->getName() << '\n';
 		codeasm << "\tMOV AX, " << temp[0]->getName() << '\n';
 	}
 	else if(temp[0]->getType() == "variable") {
+		codeasm << "\t;Line no " << temp[0]->getRuleStartLine() << " variable as factor\n";
 		if(temp.size() == 1) {
 			variable(temp[0], true);
 		}
 		else if(temp[1]->getType() == "INCOP") {
+			codeasm << "\t;Line no " << temp[1]->getRuleStartLine() << " variable INCOP\n";
 			doIncop = true;
 			variable(temp[0], true);
 			doIncop = false;
 		}
 		else if(temp[1]->getType() == "DECOP") {
+			codeasm << "\t;Line no " << temp[1]->getRuleStartLine() << " variable DECOP\n";
 			doDecop = true;
 			variable(temp[0], true);
 			doDecop = false;
 		}
 	}
 	else if(temp[1]->getType() == "expression") {
+		codeasm << "\t;Line no " << temp[1]->getRuleStartLine() << " expression\n";
 		expression(temp[1]);
 		codeasm << "\tPOP AX\n";
 	}
 	else if(temp[0]->getType() == "ID") {
+		codeasm << "\t;Line no " << temp[0]->getRuleStartLine() << temp[0]->getName() << " function call\n";
 		argument_list(temp[2]);
 		SymbolInfo *finder = symbolTable->lookUpSymbolInSymbolTable(temp[0]->getName());
 		if(finder == NULL) {

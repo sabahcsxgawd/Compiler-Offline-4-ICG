@@ -5,15 +5,27 @@
 	LF EQU 0AH
 	number DB "00000$"
 .CODE
+	;Line no 1 func_definition
 f PROC
 	PUSH BP
 	MOV BP, SP
+	;Line no 1 parameter_list
+	;Line no 1 compound_statement
+	;Line no 2 var_declaration
 	SUB SP, 2
+	;Line no 3 expression_statement
+	;Line no 3 expression
+	;Line no 3 CONST_INT with value 5
 	MOV AX, 5
+	;Line no 3 variable assignop
 	MOV [BP-2], AX
+	;Line no 4 WHILE LOOP
 L5:
+	;Line no 4 simple_expression with relop
+	;Line no 4 variable as factor
 	MOV AX, [BP-2]
 	PUSH AX
+	;Line no 4 CONST_INT with value 0
 	MOV AX, 0
 	PUSH AX
 	POP BX
@@ -27,64 +39,104 @@ L7:
 L8:
 	CMP AX, 0
 	JE L6
+	;Line no 4 compound_statement
+	;Line no 5 expression_statement
+	;Line no 5 expression
+	;Line no 5 variable as factor
+	;Line no 5 variable INCOP
 	MOV AX, [BP+4]
 	MOV CX, [BP+4]
 	INC CX
 	MOV [BP+4], CX
+	;Line no 6 expression_statement
+	;Line no 6 expression
+	;Line no 6 variable as factor
+	;Line no 6 variable DECOP
 	MOV AX, [BP-2]
 	MOV CX, [BP-2]
 	DEC CX
 	MOV [BP-2], CX
 	JMP L5
 L6:
+	;Line no 8 RETURN STATEMENT
+	;Line no 8 CONST_INT with value 3
 	MOV AX, 3
 	PUSH AX
+	;Line no 8 variable as factor
 	MOV AX, [BP+4]
 	PUSH AX
 	POP BX
 	POP AX
 	CWD
+	;Line no 8 multiplication op
 	IMUL BX
 	PUSH AX
+	;Line no 8 CONST_INT with value 7
 	MOV AX, 7
 	PUSH AX
 	POP BX
 	POP AX
+	;Line no 8 term subtraction
 	SUB AX, BX
 	JMP L1
+	;Line no 9 expression_statement
+	;Line no 9 expression
+	;Line no 9 CONST_INT with value 9
 	MOV AX, 9
+	;Line no 9 variable assignop
 	MOV [BP+4], AX
 L1:
 	MOV SP, BP
 	POP BP
 	RET 2
 f ENDP
+	;Line no 12 func_definition
 g PROC
 	PUSH BP
 	MOV BP, SP
+	;Line no 12 parameter_list
+	;Line no 12 compound_statement
+	;Line no 14 var_declaration
 	SUB SP, 2
 	SUB SP, 2
+	;Line no 15 expression_statement
+	;Line no 15 expression
+	;Line no 15f function call
+	;Line no 15 variable as factor
 	MOV AX, [BP+4]
 	PUSH AX
 	CALL f
 	PUSH AX
+	;Line no 15 variable as factor
 	MOV AX, [BP+4]
 	PUSH AX
 	POP BX
 	POP AX
+	;Line no 15 term addition
 	ADD AX, BX
 	PUSH AX
+	;Line no 15 variable as factor
 	MOV AX, [BP+6]
 	PUSH AX
 	POP BX
 	POP AX
+	;Line no 15 term addition
 	ADD AX, BX
+	;Line no 15 variable assignop
 	MOV [BP-2], AX
+	;Line no 17 FOR LOOP
+	;Line no 17 expression
+	;Line no 17 CONST_INT with value 0
 	MOV AX, 0
+	;Line no 17 variable assignop
 	MOV [BP-4], AX
 L18:
+	;Line no 17 expression
+	;Line no 17 simple_expression with relop
+	;Line no 17 variable as factor
 	MOV AX, [BP-4]
 	PUSH AX
+	;Line no 17 CONST_INT with value 7
 	MOV AX, 7
 	PUSH AX
 	POP BX
@@ -98,16 +150,23 @@ L20:
 L21:
 	CMP AX, 0
 	JE L19
+	;Line no 17 compound_statement
+	;Line no 18 IF ELSE BLOCK
+	;Line no 18 simple_expression with relop
+	;Line no 18 variable as factor
 	MOV AX, [BP-4]
 	PUSH AX
+	;Line no 18 CONST_INT with value 3
 	MOV AX, 3
 	PUSH AX
 	POP BX
 	POP AX
 	CWD
+	;Line no 18 modulus op
 	IDIV BX
 	MOV AX, DX
 	PUSH AX
+	;Line no 18 CONST_INT with value 0
 	MOV AX, 0
 	PUSH AX
 	POP BX
@@ -121,31 +180,49 @@ L26:
 L27:
 	CMP AX, 0
 	JE L24
+	;Line no 18 compound_statement
+	;Line no 19 expression_statement
+	;Line no 19 expression
+	;Line no 19 variable as factor
 	MOV AX, [BP-2]
 	PUSH AX
+	;Line no 19 CONST_INT with value 5
 	MOV AX, 5
 	PUSH AX
 	POP BX
 	POP AX
+	;Line no 19 term addition
 	ADD AX, BX
+	;Line no 19 variable assignop
 	MOV [BP-2], AX
 	JMP L25
 L24:
+	;Line no 21 compound_statement
+	;Line no 22 expression_statement
+	;Line no 22 expression
+	;Line no 22 variable as factor
 	MOV AX, [BP-2]
 	PUSH AX
+	;Line no 22 CONST_INT with value 1
 	MOV AX, 1
 	PUSH AX
 	POP BX
 	POP AX
+	;Line no 22 term subtraction
 	SUB AX, BX
+	;Line no 22 variable assignop
 	MOV [BP-2], AX
 L25:
+	;Line no 17 variable as factor
+	;Line no 17 variable INCOP
 	MOV AX, [BP-4]
 	MOV CX, [BP-4]
 	INC CX
 	MOV [BP-4], CX
 	JMP L18
 L19:
+	;Line no 26 RETURN STATEMENT
+	;Line no 26 variable as factor
 	MOV AX, [BP-2]
 	JMP L14
 L14:
@@ -153,30 +230,58 @@ L14:
 	POP BP
 	RET 4
 g ENDP
+	;Line no 29 func_definition
 main PROC
 	MOV AX, @DATA
 	MOV DS, AX
 	PUSH BP
 	MOV BP, SP
+	;Line no 29 compound_statement
+	;Line no 30 var_declaration
 	SUB SP, 2
 	SUB SP, 2
 	SUB SP, 2
+	;Line no 31 expression_statement
+	;Line no 31 expression
+	;Line no 31 CONST_INT with value 1
 	MOV AX, 1
+	;Line no 31 variable assignop
 	MOV [BP-2], AX
+	;Line no 32 expression_statement
+	;Line no 32 expression
+	;Line no 32 CONST_INT with value 2
 	MOV AX, 2
+	;Line no 32 variable assignop
 	MOV [BP-4], AX
+	;Line no 33 expression_statement
+	;Line no 33 expression
+	;Line no 33g function call
+	;Line no 33 variable as factor
+	MOV AX, [BP-4]
 	PUSH AX
+	;Line no 33 variable as factor
 	MOV AX, [BP-2]
 	PUSH AX
 	CALL g
+	;Line no 33 variable assignop
 	MOV [BP-2], AX
+	;Line no 34 println
+	MOV AX, [BP-2]
 	CALL PRINT_OUTPUT
 	CALL NEW_LINE
+	;Line no 35 FOR LOOP
+	;Line no 35 expression
+	;Line no 35 CONST_INT with value 0
 	MOV AX, 0
+	;Line no 35 variable assignop
 	MOV [BP-6], AX
 L40:
+	;Line no 35 expression
+	;Line no 35 simple_expression with relop
+	;Line no 35 variable as factor
 	MOV AX, [BP-6]
 	PUSH AX
+	;Line no 35 CONST_INT with value 4
 	MOV AX, 4
 	PUSH AX
 	POP BX
@@ -190,11 +295,20 @@ L42:
 L43:
 	CMP AX, 0
 	JE L41
+	;Line no 35 compound_statement
+	;Line no 36 expression_statement
+	;Line no 36 expression
+	;Line no 36 CONST_INT with value 3
 	MOV AX, 3
+	;Line no 36 variable assignop
 	MOV [BP-2], AX
+	;Line no 37 WHILE LOOP
 L47:
+	;Line no 37 simple_expression with relop
+	;Line no 37 variable as factor
 	MOV AX, [BP-2]
 	PUSH AX
+	;Line no 37 CONST_INT with value 0
 	MOV AX, 0
 	PUSH AX
 	POP BX
@@ -208,31 +322,47 @@ L49:
 L50:
 	CMP AX, 0
 	JE L48
+	;Line no 37 compound_statement
+	;Line no 38 expression_statement
+	;Line no 38 expression
+	;Line no 38 variable as factor
+	;Line no 38 variable INCOP
 	MOV AX, [BP-4]
 	MOV CX, [BP-4]
 	INC CX
 	MOV [BP-4], CX
+	;Line no 39 expression_statement
+	;Line no 39 expression
+	;Line no 39 variable as factor
+	;Line no 39 variable DECOP
 	MOV AX, [BP-2]
 	MOV CX, [BP-2]
 	DEC CX
 	MOV [BP-2], CX
 	JMP L47
 L48:
+	;Line no 35 variable as factor
+	;Line no 35 variable INCOP
 	MOV AX, [BP-6]
 	MOV CX, [BP-6]
 	INC CX
 	MOV [BP-6], CX
 	JMP L40
 L41:
+	;Line no 42 println
 	MOV AX, [BP-2]
 	CALL PRINT_OUTPUT
 	CALL NEW_LINE
+	;Line no 43 println
 	MOV AX, [BP-4]
 	CALL PRINT_OUTPUT
 	CALL NEW_LINE
+	;Line no 44 println
 	MOV AX, [BP-6]
 	CALL PRINT_OUTPUT
 	CALL NEW_LINE
+	;Line no 45 RETURN STATEMENT
+	;Line no 45 CONST_INT with value 0
 	MOV AX, 0
 	JMP L33
 L33:

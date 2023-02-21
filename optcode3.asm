@@ -5,20 +5,31 @@
 	LF EQU 0AH
 	number DB "00000$"
 .CODE
+	;Line no 2 func_definition
 main PROC
 	MOV AX, @DATA
 	MOV DS, AX
 	PUSH BP
 	MOV BP, SP
+	;Line no 2 compound_statement
+	;Line no 4 var_declaration
 	SUB SP, 2
 	SUB SP, 2
 	SUB SP, 2
 	SUB SP, 2
+	;Line no 6 FOR LOOP
+	;Line no 6 expression
+	;Line no 6 CONST_INT with value 0
 	MOV AX, 0
+	;Line no 6 variable assignop
 	MOV [BP-2], AX
 L4:
+	;Line no 6 expression
+	;Line no 6 simple_expression with relop
+	;Line no 6 variable as factor
 	MOV AX, [BP-2]
 	PUSH AX
+	;Line no 6 CONST_INT with value 6
 	MOV AX, 6
 	PUSH AX
 	POP BX
@@ -32,22 +43,38 @@ L6:
 L7:
 	CMP AX, 0
 	JE L5
+	;Line no 6 compound_statement
+	;Line no 7 println
 	MOV AX, [BP-2]
 	CALL PRINT_OUTPUT
 	CALL NEW_LINE
+	;Line no 6 variable as factor
+	;Line no 6 variable INCOP
 	MOV AX, [BP-2]
 	MOV CX, [BP-2]
 	INC CX
 	MOV [BP-2], CX
 	JMP L4
 L5:
+	;Line no 10 expression_statement
+	;Line no 10 expression
+	;Line no 10 CONST_INT with value 4
 	MOV AX, 4
+	;Line no 10 variable assignop
 	MOV [BP-6], AX
+	;Line no 11 expression_statement
+	;Line no 11 expression
+	;Line no 11 CONST_INT with value 6
 	MOV AX, 6
+	;Line no 11 variable assignop
 	MOV [BP-8], AX
+	;Line no 12 WHILE LOOP
 L13:
+	;Line no 12 simple_expression with relop
+	;Line no 12 variable as factor
 	MOV AX, [BP-6]
 	PUSH AX
+	;Line no 12 CONST_INT with value 0
 	MOV AX, 0
 	PUSH AX
 	POP BX
@@ -61,53 +88,88 @@ L15:
 L16:
 	CMP AX, 0
 	JE L14
+	;Line no 12 compound_statement
+	;Line no 13 expression_statement
+	;Line no 13 expression
+	;Line no 13 variable as factor
 	MOV AX, [BP-8]
 	PUSH AX
+	;Line no 13 CONST_INT with value 3
 	MOV AX, 3
 	PUSH AX
 	POP BX
 	POP AX
+	;Line no 13 term addition
 	ADD AX, BX
+	;Line no 13 variable assignop
 	MOV [BP-8], AX
+	;Line no 14 expression_statement
+	;Line no 14 expression
+	;Line no 14 variable as factor
+	;Line no 14 variable DECOP
 	MOV AX, [BP-6]
 	MOV CX, [BP-6]
 	DEC CX
 	MOV [BP-6], CX
 	JMP L13
 L14:
+	;Line no 17 println
 	MOV AX, [BP-8]
 	CALL PRINT_OUTPUT
 	CALL NEW_LINE
+	;Line no 18 println
 	MOV AX, [BP-6]
 	CALL PRINT_OUTPUT
 	CALL NEW_LINE
+	;Line no 20 expression_statement
+	;Line no 20 expression
+	;Line no 20 CONST_INT with value 4
 	MOV AX, 4
+	;Line no 20 variable assignop
 	MOV [BP-6], AX
+	;Line no 21 expression_statement
+	;Line no 21 expression
+	;Line no 21 CONST_INT with value 6
 	MOV AX, 6
+	;Line no 21 variable assignop
 	MOV [BP-8], AX
+	;Line no 23 WHILE LOOP
 L25:
+	;Line no 23 variable as factor
+	;Line no 23 variable DECOP
 	MOV AX, [BP-6]
 	MOV CX, [BP-6]
 	DEC CX
 	MOV [BP-6], CX
 	CMP AX, 0
 	JE L26
+	;Line no 23 compound_statement
+	;Line no 24 expression_statement
+	;Line no 24 expression
+	;Line no 24 variable as factor
 	MOV AX, [BP-8]
 	PUSH AX
+	;Line no 24 CONST_INT with value 3
 	MOV AX, 3
 	PUSH AX
 	POP BX
 	POP AX
+	;Line no 24 term addition
 	ADD AX, BX
+	;Line no 24 variable assignop
 	MOV [BP-8], AX
 	JMP L25
 L26:
+	;Line no 27 println
 	MOV AX, [BP-8]
 	CALL PRINT_OUTPUT
 	CALL NEW_LINE
+	;Line no 28 println
 	MOV AX, [BP-6]
 	CALL PRINT_OUTPUT
 	CALL NEW_LINE
+	;Line no 30 RETURN STATEMENT
+	;Line no 30 CONST_INT with value 0
 	MOV AX, 0
 	JMP L1
 L1:

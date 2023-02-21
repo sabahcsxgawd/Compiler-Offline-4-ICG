@@ -401,7 +401,7 @@ public:
                     // if(name == "number") {
                     //     name = '_' + mover->getName();
                     // }
-                    logOut << "\t" << mover->getName() << " DW DUP " << arrSize << " (0000H)\n";
+                    logOut << "\t" << mover->getName() << " DW " << arrSize << " DUP (0000H)\n";
                 }
                 mover = mover->getNextSymbolInfo();
             }        
